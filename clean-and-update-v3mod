@@ -32,12 +32,16 @@ protocol="nfs"
 
 ## Remote directory scan paths
 tv_path="export/_TV"
+### uncategorized tv has no path to define, since we dont scan it to the library.
+### we only send a visual notification to XBMC when SAB finishes an uncategorized download.
+### examples include: out of season episodes; single episode specials, or newscast documentaries.
+### these types of video are problematic when matching metadata with thetvdb.com, and are best left unidentified.
 anime_path="export/_Anime"
 archive_path="export/_To-Archive"
 documentary_path="export/_Documentaries"
 movie_path="export/_Movies"
 
-## Set your SABnzbd categories here
+## Set your categories from SABnzbd here
 SAB_TV="tv"
 SAB_Uncategorized_TV="uncat_tv"
 SAB_Anime="anime"
