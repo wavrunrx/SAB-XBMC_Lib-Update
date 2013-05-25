@@ -114,7 +114,7 @@ fi
 if [ "$5" = "$SAB_TV" ] || [ "$5" = "$SAB_Uncategorized_TV" ] ;
 then
 	echo
-	echo "[ TV ] Detected ( $5 )"
+	echo "[ TV ] Detected"
 	echo
 	GARBAGE="nfo srt sfv srr url txt md5 diz jpg bmp png"
 	detec="1"
@@ -164,7 +164,7 @@ done
 
 echo
 attempt="0"
-2
+
 while true; do
 attempt=$(( attempt + 1 ))
 if [ "$attempt" = "7" ] ;
