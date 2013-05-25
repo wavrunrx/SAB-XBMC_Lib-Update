@@ -92,7 +92,7 @@ name_failed ()
 	echo "`date +"%A %b %e, %Y"`"
 	echo "`date +"%r"`"
 	echo
-	echo "Failed: NZB; Name Formatting Issue !"
+	echo "Failed: NZB Name Formatting Issue !"
 	exit 1
 }
 
@@ -105,20 +105,28 @@ then
 	echo "Post-Processing Failed"
 	echo "Not Updating Library"
 	processing_failed
-	## Exiting
+	## Failure, Exiting
 fi
 
 
 ###### Define Junk Files & Decide Videos' Category
 
-if [ "$5" = "$SAB_TV" ] || [ "$5" = "$SAB_Uncategorized_TV" ] ;
+if [ "$5" = "$SAB_TV" ]
 then
 	echo
 	echo "[ TV ] Detected"
 	echo
 	GARBAGE="nfo srt sfv srr url txt md5 diz jpg bmp png"
 	detec="1"
-else
+elif [ "$5" = "$SAB_Uncategorized_TV" ] ;
+then
+	echo
+	echo "[ Uncategorized TV ] Detected"
+	echo
+	GARBAGE="nfo srt sfv srr url txt md5 diz jpg bmp png"
+	detec="1"
+elif [ "$5" = "$SAB_Movies" ] ;
+then
 	echo
 	echo "[ Movie ] Detected"
 	echo
@@ -127,7 +135,7 @@ else
 fi
 
 
-###### Check For Proper Scene Naming Scheme
+###### Check For Proper Scene Naming Scheme, ex: s01e01, S01E01, etc.
 
 echo "$2" | grep -o [S,s]*[[:digit:]][E,e,X,x]*[[:digit:]] > /dev/null
 format="$?"
@@ -140,7 +148,7 @@ then
 		echo "Episode NOT Following Proper Naming Rules"
 		echo "Ex: s01e01, s01x02, 01x03, etc..."
 		name_failed
-		## Exiting
+		## Failure, Exiting
 	fi
 fi
 
@@ -215,7 +223,6 @@ fi
 
 ###### TV Variables
 
-##show_name_and_season=$(echo "$1/" | awk -F/ '{print $(NF-2)"/"$(NF-1)}' | sed -e "s/\b\(.\)/\u\1/g")
 show_name_and_season=$(echo "$1/" | awk -F/ '{print $(NF-2)"/"$(NF-1)}' | sed "s/\b\(.\)/\u\1/g" | sed 's/\/S/\/s/g')
 show_name=$(echo `echo "$1/" | awk -F/ '{print $(NF-2)"/"$(NF-1)}'` | sed -e 's/\/.*//' | sed -e "s/\b\(.\)/\u\1/g")
 show_season=$(echo "$1/" | awk -F/ '{print $(NF-1)}' | sed 's/s//')
