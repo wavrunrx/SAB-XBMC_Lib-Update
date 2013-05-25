@@ -6,13 +6,13 @@
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #	* Redistributions of source code must retain the above copyright
-#	  notice, this list of conditions and the following disclaimer.
+#	notice, this list of conditions and the following disclaimer.
 #	* Redistributions in binary form must reproduce the above copyright
-#	  notice, this list of conditions and the following disclaimer in the
-#	  documentation and/or other materials provided with the distribution.
+#	notice, this list of conditions and the following disclaimer in the
+#	documentation and/or other materials provided with the distribution.
 #	* Neither the name of the <organization> nor the names of its contributors
-#     may be used to endorse or promote products derived from this software
-#     without specific prior written permission.
+#	may be used to endorse or promote products derived from this software
+#	without specific prior written permission.
 
 
 ###### Change The Following Variables:
@@ -49,8 +49,16 @@ SAB_Archive="archive"
 SAB_Documentaries="documentaries"
 SAB_Movies="movies"
 
+## Set files to remove after SAB processing here
+TV_GARBAGE="nfo srt sfv srr url txt md5 diz jpg bmp png"
+UNCATTV_GARBAGE="nfo srt sfv srr url txt md5 diz jpg bmp png"
+MOVIE_GARBAGE="sfv srr url txt md5 diz jpg bmp png"
 
+
+
+###########################################
 ###### ATTENTION: DO NOT EDIT PAST THIS POINT ######
+###########################################
 
 success ()
 {
@@ -97,7 +105,7 @@ name_failed ()
 }
 
 
-###### Check Post-Processing Outcome
+###### Check Post-Processing Outcome From SAB
 
 if [ "$7" -ge "1" ] ;
 then
@@ -109,27 +117,29 @@ then
 fi
 
 
-###### Define Junk Files & Decide Videos' Category
+###### Define Junk Files & Set Video Category
 
-if [ "$5" = "$SAB_TV" ]
+if [ "$5" = "$SAB_TV" ] ;
 then
 	echo
 	echo "[ TV ] Detected"
 	echo
-	GARBAGE="nfo srt sfv srr url txt md5 diz jpg bmp png"
+	GARBAGE=$TV_GARBAGE
 	detec="1"
-elif [ "$5" = "$SAB_Uncategorized_TV" ] ;
+fi
+if [ "$5" = "$SAB_Uncategorized_TV" ] ;
 then
 	echo
 	echo "[ Uncategorized TV ] Detected"
 	echo
-	GARBAGE="nfo srt sfv srr url txt md5 diz jpg bmp png"
-elif [ "$5" = "$SAB_Movies" ] ;
+	GARBAGE=$UNCATTV_GARBAGE
+fi
+if [ "$5" = "$SAB_Movies" ] ;
 then
 	echo
 	echo "[ Movie ] Detected"
 	echo
-	GARBAGE="sfv srr url txt md5 diz jpg bmp png"
+	GARBAGE=$MOVIE_GARBAGE
 	detec="0"
 fi
 
@@ -177,9 +187,10 @@ attempt=$(( attempt + 1 ))
 if [ "$attempt" = "7" ] ;
 then
 	echo
-	echo ">> XBMC Not Responding to WOL Packets."
+	echo ">> XBMC Has Not Responded to WOL Packets."
 	echo ">> Attempted To Wake XBMC [ 2 ] Times."
 	echo ">> XBMC Has Failed to Wake"
+	echo ">> Library Updated Canceled"
 	echo
 	fail="1"
 	break
@@ -240,15 +251,13 @@ debug ()
 echo "Debugging Info:"
 if [ $detec = "1" ] ;
 then
-	echo -ne "Show Name / Season................: " && echo "$show_name_and_season"
-	echo -ne "Show Season + Episode.............: " && echo s"$show_season"e"$show_episode"
+	echo -ne "Show Name & Season................: " && echo "$show_name_and_season"
 	echo -ne "Show Name.........................: " && echo "$show_name"
 	echo -ne "Show Season.......................: " && echo s"$show_season"
 	echo -ne "Show Episode......................: " && echo e"$show_episode"
 elif [ "$detec" = "0" ] ;
 then
-	echo -ne "Movie Name / Year................:" && echo " $movie_name_and_year"
-	echo -ne "Movie Name + Year................:" && echo " $movie_name""$movie_year"
+	echo -ne "Movie Name & Year................:" && echo " $movie_name_and_year"
 	echo -ne "Movie Name.......................: " && echo "$movie_name"
 	echo -ne "Movie Year.......................: " && echo "$movie_year"
 fi
