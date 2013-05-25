@@ -27,7 +27,7 @@ xbmc_user="xbmc"
 ## Set this to the IP of the machine running SABnzbd, 127.0.0.1 if its the same machine
 remote="192.168.2.104"
 
-## What file-sharing protocol are we using for remove shares; set to "smb", or "nfs"
+## What file-sharing protocol are we using for remove shares; set to "smb", or "nfs" (others may work, i just have not tested them..)
 protocol="nfs"
 
 ## Remote directory scan paths
@@ -70,7 +70,7 @@ failure ()
 	echo "`date +"%A %b %e, %Y"`"
 	echo "`date +"%r"`"
 	echo
-	echo "Failed: XBMC didn't respond !"
+	echo "Failed: XBMC Didn't Respond !"
 	exit 1
 }
 
@@ -124,7 +124,6 @@ then
 	echo "[ Uncategorized TV ] Detected"
 	echo
 	GARBAGE="nfo srt sfv srr url txt md5 diz jpg bmp png"
-	detec="1"
 elif [ "$5" = "$SAB_Movies" ] ;
 then
 	echo
