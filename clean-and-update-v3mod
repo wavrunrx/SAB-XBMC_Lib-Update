@@ -243,12 +243,12 @@ show_episode=$(echo "$2/" | grep -o [S,s]*[[:digit:]][[:digit:]][E,e,X,x][[:digi
 
 movie_name_and_year=$(echo "$1/" | awk -F/ '{print $(NF-1)}' | sed -e "s/\b\(.\)/\u\1/g")
 movie_name=$(echo "$1/" | awk -F/ '{print $(NF-1)}' | sed -e 's/([^()]*)//g' | sed -e "s/\b\(.\)/\u\1/g")
-movie_year=$(echo "$1/" | awk '{print $NF}' | tr -d "/")
+movie_year=$(echo "$1/" | awk '{print $NF}' | tr -d "/" | tr -d '()' )
 
 
 debug ()
 {
-echo "Debugging Info:"
+echo "Debuging Info:"
 if [ $detec = "1" ] ;
 then
 	echo -ne "Show Name & Season................: " && echo "$show_name_and_season"
@@ -276,7 +276,7 @@ then
 		echo
 		echo "Updating TV Library --> [ TV ]"
 		echo
-		echo ">> Registering TV Show [ $show_name ] with XBMC Library"
+		echo ">> Registering: TV Show [ $show_name ] with XBMC Library"
 		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$remote/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
 		echo
 		sleep 10
