@@ -69,18 +69,18 @@ success ()
 	echo "`date +"%A %b %e, %Y"`"
 	echo "`date +"%r"`"
 	echo
-	echo "Catalog Updated Successfully !"
+	echo "Success: Catalog Update Completed."
 	exit 0
 }
 
-failure ()
+wake_failure ()
 {
 	echo
 	echo "Time Failed:"
 	echo "`date +"%A %b %e, %Y"`"
 	echo "`date +"%r"`"
 	echo
-	echo "Failed: XBMC Didn't Respond !"
+	echo "Failed: Issue >> XBMC Didn't Respond to WOL Request."
 	exit 1
 }
 
@@ -91,7 +91,7 @@ processing_failed ()
 	echo "`date +"%A %b %e, %Y"`"
 	echo "`date +"%r"`"
 	echo
-	echo "Failed: SABnzbd Post-Processing Failed !"
+	echo "Failed: Issue >> SABnzbd Post-Processing Failure: Not Updating Library."
 	exit 1
 }
 
@@ -102,7 +102,7 @@ name_failed ()
 	echo "`date +"%A %b %e, %Y"`"
 	echo "`date +"%r"`"
 	echo
-	echo "Failed: NZB Name Formatting Issue !"
+	echo "Failed: Issue >> Season/Episode Naming Scheme Undetectable."
 	exit 1
 }
 
@@ -112,8 +112,7 @@ name_failed ()
 if [ "$7" -ge "1" ] ;
 then
 	echo
-	echo "Post-Processing Failed"
-	echo "Not Updating Library"
+	echo "Error: SABnzbd Post-Processing Failed !"
 	processing_failed
 	## Failure, Exiting
 fi
@@ -156,7 +155,7 @@ then
 	then
 		echo "$2"
 		echo
-		echo "Episode NOT Following Proper Naming Rules"
+		echo "Show Not Following Proper Season/Episode Naming Standards"
 		echo "Ex: s01e01, s01x02, 01x03, etc..."
 		name_failed
 		## Failure, Exiting
@@ -267,7 +266,7 @@ then
 	echo -ne "Movie Year.......................: " && echo "$movie_year"
 fi
 echo
-echo "SABnzbd Post Processing Outome: $7"
+echo "SABnzbd Post-Processing Outome: $7"
 echo "User Defined Category: $5"
 echo "Job Name (Clean): $3"
 echo "Final Path of Job: $1"
@@ -388,6 +387,8 @@ sleep 5
 if [ "$fail" = "0" ] ;
 then
 	success
+	## We're Done
 else
-	failure
+	wake_failure
+	## Failure, Exiting
 fi
