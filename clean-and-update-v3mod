@@ -275,12 +275,12 @@ then
 fi
 echo
 echo ">> SABnzbd Data:"
-echo "SABnzbd Post-Processing Outome...: `if [[ "$pproc" -eq "0" ]]; then echo "Passed" ; else echo "Failed" ; fi` [$pproc]"
+echo "SABnzbd Post-Processing..........: `if [[ "$pproc" -eq "0" ]]; then echo "Passed" ; else echo "Failed" ; fi` ($pproc)"
 echo "User Defined Category............: $cat"
 echo "Final Path of Job................: $fpath"
-echo "Job Name (Clean)...............: $cjob"
+echo "Job Name (Clean).................: $cjob"
 echo "NZB File Name....................: $nzb"
-echo "Usenet Group......................: $grp"
+echo "Usenet Group.....................: $grp"
 }
 
 
