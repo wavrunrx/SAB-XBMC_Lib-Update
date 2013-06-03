@@ -76,7 +76,7 @@ success ()
 	echo "`date +"%A %b %e, %Y"`"
 	echo "`date +"%r"`"
 	echo
-	echo "Success: Catalog Update Completed."
+	echo "Success: Library Update Completed."
 	exit 0
 }
 
@@ -87,7 +87,7 @@ wake_failure ()
 	echo "`date +"%A %b %e, %Y"`"
 	echo "`date +"%r"`"
 	echo
-	echo "Failed: Issue >> XBMC Didn't Respond to WOL Request."
+	echo "Failed: Issue: XBMC Didn't Respond to WOL Request."
 	exit 1
 }
 
@@ -98,7 +98,7 @@ processing_failed ()
 	echo "`date +"%A %b %e, %Y"`"
 	echo "`date +"%r"`"
 	echo
-	echo "Failed: Issue >> SABnzbd Post-Processing Failure."
+	echo "Failed: Issue: SABnzbd Post-Processing Failure."
 	exit 1
 }
 
@@ -109,7 +109,7 @@ name_failed ()
 	echo "`date +"%A %b %e, %Y"`"
 	echo "`date +"%r"`"
 	echo
-	echo "Failed: Issue >> Season/Episode Naming Scheme Undetectable."
+	echo "Failed: Issue: Season/Episode Naming Scheme Undetectable."
 	exit 1
 }
 
@@ -120,7 +120,7 @@ if [ "$7" -ge "1" ] ;
 then
 	echo
 	echo "Error: SABnzbd Post-Processing Failed !"
-	echo "Library Not Updated."
+	echo "Library Updated Canceled."
 	processing_failed
 	## Failure, Exiting
 fi
@@ -163,7 +163,7 @@ then
 	then
 		echo "$2"
 		echo
-		echo "Show Not Following Proper Season/Episode Naming Standards"
+		echo "Show Not Following A Recognizable Season/Episode Naming Standard"
 		echo "Ex: s01e01, s01x02, 01x03, etc..."
 		name_failed
 		## Failure, Exiting
@@ -180,7 +180,7 @@ do
 	then
 		find "$1" -name *.$junk -type f -exec rm -f {} \;
 		echo ">>> $junk Removed [ $trash ]"
-		elean="0"
+		clean="0"
 	else
 		clean="1"
 	fi
@@ -214,7 +214,7 @@ result=$?
 if [ "$result" = "1" ] ;
 then
 	echo ">> XBMC Is Inactive"
-	echo "Waking XBMC (MAC: $xbmc_mac)"
+	echo "Waking XBMC [ MAC: $xbmc_mac ]"
 	wakeonlan $xbmc_mac > /dev/null 2>&1
 	echo "Sleeping 100 seconds. "
 	sleep 100
@@ -277,11 +277,11 @@ then
 fi
 echo
 echo ">> SABnzbd Data"
-echo "SABnzbd Post-Processing..........: `if [[ "$pproc" -eq "0" ]]; then echo "Passed" ; else echo "Failed" ; fi` ($pproc)"
+echo "SABnzbd Post-Processing..........: `if [[ "$pproc" -eq "0" ]]; then echo "Passed" ; else echo "Failed" ; fi` [ $pproc ]"
 echo "User Defined Category............: $cat"
 echo "Final Path of Job................: $fpath"
-echo "Job Name (Clean).................: $cjob"
 echo "NZB File Name....................: $nzb"
+echo "Clean Job Name...................: $cjob"
 echo "Usenet Group.....................: $grp"
 }
 
@@ -311,10 +311,10 @@ then
 	echo
 	echo ">> Commands Run"
 	echo
-	echo "Register Show:"
+	echo "[ (Re)Register Show ]"
 	echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name"'.g'""
 	echo
-	echo "Update Episode:"
+	echo "[ Update Episode ]"
 	echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name_and_season"'.g'""
 	echo
 elif [ "$5" = "$SAB_Uncategorized_TV" ] ;
@@ -342,7 +342,7 @@ then
 	echo
 	echo ">> Command Run"
 	echo
-	echo "Register Movie:"
+	echo "[ Register Movie ]"
 	echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$movie_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
 	echo
 elif [ "$5" = "$SAB_Documentaries" ] ;
@@ -362,7 +362,7 @@ then
 	echo
 	echo ">> Command Run"
 	echo
-	echo "Register Movie:"
+	echo "[ Register Movie ]"
 	echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$documentary_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
 	echo
 elif [ "$5" = "$SAB_Archive" ] ;
@@ -382,7 +382,7 @@ then
 	echo
 	echo ">> Command Run"
 	echo
-	echo "Register Movie:"
+	echo "[ Register Movie ]"
 	echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$archive_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
 	echo
 elif [ "$5" = "$SAB_Anime" ] ;
@@ -402,7 +402,7 @@ then
 	echo
 	echo ">> Command Run"
 	echo
-	echo "Register Movie:"
+	echo "[ Register Movie ]"
 	echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$anime_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
 	echo
 fi
