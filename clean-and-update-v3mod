@@ -175,7 +175,7 @@ fi
 
 for junk in $GARBAGE
 do
-	trash=$(ls "$1"*.$junk 2> /dev/null)
+	trash=$(cd "$1" ; ls *.$junk 2> /dev/null)
 	if [ ! -z $trash ] ;
 	then
 		find "$1" -name *.$junk -type f -exec rm -f {} \;
@@ -271,16 +271,16 @@ then
 	echo -ne "Show Episode.....................: " && echo e"$show_episode"
 elif [ "$detec" = "0" ] ;
 then
-	echo -ne "Movie Name & Year...............:" && echo " $movie_name_and_year"
-	echo -ne "Movie Name......................: " && echo "$movie_name"
-	echo -ne "Movie Year......................: " && echo "$movie_year"
+	echo -ne "Movie Name & Year................:" && echo " $movie_name_and_year"
+	echo -ne "Movie Name.......................: " && echo "$movie_name"
+	echo -ne "Movie Year.......................: " && echo "$movie_year"
 fi
 echo
 echo ">> SABnzbd Data"
 echo "SABnzbd Post-Processing..........: `if [[ "$pproc" -eq "0" ]]; then echo "Passed" ; else echo "Failed" ; fi` [ $pproc ]"
 echo "User Defined Category............: $cat"
 echo "Final Path of Job................: $fpath"
-echo "NZB File Name....................: $nzb"
+echo "NZB File(s) Name.................: $nzb"
 echo "Clean Job Name...................: $cjob"
 echo "Usenet Group.....................: $grp"
 }
