@@ -122,7 +122,7 @@ then
 	echo "Error: SABnzbd Post-Processing Failed !"
 	echo "Library Updated Canceled."
 	processing_failed
-	## Failure, Exiting
+	## Failure, We're Exiting
 fi
 
 
@@ -166,28 +166,28 @@ then
 		echo "Show Not Following A Recognizable Season/Episode Naming Standard"
 		echo "Ex: s01e01, s01x02, 01x03, etc..."
 		name_failed
-		## Failure, Exiting
+		## Failure, We're Exiting
 	fi
 fi
 
 
 ###### Remove Junk Files
 
-for junk in $GARBAGE
+echo ">> Junk Files Found"
+for junk in $GARBAGE ;
 do
 	trash=$(cd "$1" ; ls *.$junk 2> /dev/null)
 	if [ ! -z $trash ] ;
 	then
 		find "$1" -name *.$junk -type f -exec rm -f {} \;
-		echo ">>> $junk Removed [ $trash ]"
+		echo ".$junk Removed --> $trash"
 		clean="0"
-	else
-		clean="1"
 	fi
 done
-if [ "$clean" = "1" ] ;
+if [ "$clean" != "0" ] ;
 then
 	echo ">> No Junk Files Found"
+	echo " Nothing Removed"
 fi
 
 
@@ -196,37 +196,38 @@ fi
 echo
 attempt="0"
 
-while true; do
-attempt=$(( attempt + 1 ))
-if [ "$attempt" = "7" ] ;
-then
-	echo
-	echo ">> XBMC Has Not Responded to WOL Packets."
-	echo ">> Attempted To Wake XBMC [ 2 ] Times."
-	echo ">> XBMC Has Failed to Wake"
-	echo ">> Library Updated Canceled"
-	echo
-	fail="1"
-	break
-fi
-ping -c 4 $xbmc_ip > /dev/null 2>&1
-result=$?
-if [ "$result" = "1" ] ;
-then
-	echo ">> XBMC Is Inactive"
-	echo "Waking XBMC [ MAC: $xbmc_mac ]"
-	wakeonlan $xbmc_mac > /dev/null 2>&1
-	echo "Sleeping 100 seconds. "
-	sleep 100
-	echo "Timer Completed."
-	echo "Retrying XBMC..."
-	echo
-	attempt=$(( attempt + 2 ))
-	tried="1"
-	continue
-else
-	break
-fi
+while true ;
+do
+	attempt=$(( attempt + 1 ))
+	if [ "$attempt" = "7" ] ;
+	then
+		echo
+		echo ">> XBMC Has Not Responded to WOL Packets."
+		echo ">> Attempted To Wake XBMC [ 2 ] Times."
+		echo ">> XBMC Has Failed to Wake"
+		echo ">> Library Updated Canceled"
+		echo
+		fail="1"
+		break
+	fi
+	ping -c 4 $xbmc_ip > /dev/null 2>&1
+	result=$?
+	if [ "$result" = "1" ] ;
+	then
+		echo ">> XBMC Is Inactive"
+		echo "Waking XBMC [ MAC: $xbmc_mac ]"
+		wakeonlan $xbmc_mac > /dev/null 2>&1
+		echo "Sleeping 100 seconds. "
+		sleep 100
+		echo "Timer Completed."
+		echo "Retrying XBMC..."
+		echo
+		attempt=$(( attempt + 2 ))
+		tried="1"
+		continue
+	else
+		break
+	fi
 done
 
 
@@ -308,7 +309,6 @@ then
 	fi
 	debug
 	echo
-	echo
 	echo ">> Commands Run"
 	echo
 	echo "[ (Re)Register Show ]"
@@ -339,7 +339,6 @@ then
 	fi
 	debug
 	echo
-	echo
 	echo ">> Command Run"
 	echo
 	echo "[ Register Movie ]"
@@ -358,7 +357,6 @@ then
 		echo
 	fi
 	debug
-	echo
 	echo
 	echo ">> Command Run"
 	echo
@@ -379,7 +377,6 @@ then
 	fi
 	debug
 	echo
-	echo
 	echo ">> Command Run"
 	echo
 	echo "[ Register Movie ]"
@@ -399,7 +396,6 @@ then
 	fi
 	debug
 	echo
-	echo
 	echo ">> Command Run"
 	echo
 	echo "[ Register Movie ]"
@@ -408,11 +404,12 @@ then
 fi
 
 sleep 5
+
 if [ "$fail" = "0" ] ;
 then
 	success
-	## We're Done
+	## Success, We're Done
 else
 	wake_failure
-	## Failure, Exiting
+	## Failure, We're Exiting
 fi
