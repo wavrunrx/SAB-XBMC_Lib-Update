@@ -87,6 +87,7 @@ wake_failure ()
 	echo "`date +"%A %b %e, %Y"`"
 	echo "`date +"%r"`"
 	echo
+	echo "Failed: Library Not Updated."
 	echo "Failed: Issue: XBMC Didn't Respond to WOL Request."
 	exit 1
 }
@@ -98,6 +99,7 @@ processing_failed ()
 	echo "`date +"%A %b %e, %Y"`"
 	echo "`date +"%r"`"
 	echo
+	echo "Failed: Library Not Updated."
 	echo "Failed: Issue: SABnzbd Post-Processing Failure."
 	exit 1
 }
@@ -109,6 +111,7 @@ name_failed ()
 	echo "`date +"%A %b %e, %Y"`"
 	echo "`date +"%r"`"
 	echo
+	echo "Failed: Library Not Updated."
 	echo "Failed: Issue: Season/Episode Naming Scheme Undetectable."
 	exit 1
 }
@@ -120,7 +123,6 @@ if [ "$7" -ge "1" ] ;
 then
 	echo
 	echo "Error: SABnzbd Post-Processing Failed !"
-	echo "Library Updated Canceled."
 	processing_failed
 	## Failure, We're Exiting
 fi
@@ -173,21 +175,20 @@ fi
 
 ###### Remove Junk Files
 
-echo ">> Junk Files Found"
 for junk in $GARBAGE ;
 do
 	trash=$(cd "$1" ; ls *.$junk 2> /dev/null)
 	if [ ! -z $trash ] ;
 	then
 		find "$1" -name *.$junk -type f -exec rm -f {} \;
-		echo ".$junk Removed --> $trash"
+		echo ">> .$junk Removed --> $trash"
 		clean="0"
 	fi
 done
 if [ "$clean" != "0" ] ;
 then
 	echo ">> No Junk Files Found"
-	echo " Nothing Removed"
+	echo "Nothing Removed"
 fi
 
 
@@ -205,7 +206,6 @@ do
 		echo ">> XBMC Has Not Responded to WOL Packets."
 		echo ">> Attempted To Wake XBMC [ 2 ] Times."
 		echo ">> XBMC Has Failed to Wake"
-		echo ">> Library Updated Canceled"
 		echo
 		fail="1"
 		break
@@ -266,15 +266,15 @@ debug ()
 echo ">> Debuging Info"
 if [ $detec = "1" ] ;
 then
-	echo -ne "Show Name & Season...............: " && echo "$show_name_and_season"
-	echo -ne "Show Name........................: " && echo "$show_name"
-	echo -ne "Show Season......................: " && echo s"$show_season"
-	echo -ne "Show Episode.....................: " && echo e"$show_episode"
+	echo "Show Name & Season...............: $show_name_and_season"
+	echo "Show Name........................: $show_name"
+	echo "Show Season......................: $show_season"
+	echo "Show Episode.....................: $show_episode"
 elif [ "$detec" = "0" ] ;
 then
-	echo -ne "Movie Name & Year................:" && echo " $movie_name_and_year"
-	echo -ne "Movie Name.......................: " && echo "$movie_name"
-	echo -ne "Movie Year.......................: " && echo "$movie_year"
+	echo "Movie Name & Year................: $movie_name_and_year"
+	echo "Movie Name.......................: $movie_name"
+	echo "Movie Year.......................: $movie_year"
 fi
 echo
 echo ">> SABnzbd Data"
@@ -298,8 +298,9 @@ then
 		echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: TV\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name  [ s$show_season e$show_episode ]"'.g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
 		echo
 		echo ">> Updating Library --> [ TV ]"
+		echo "Continuing"
 		echo
-		echo ">> Registering: TV Show [ $show_name ] with XBMC Library"
+		echo ">> (Re)Register: TV Show [ $show_name ] with XBMC Library"
 		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
 		echo
 		sleep 10
@@ -410,6 +411,7 @@ then
 	success
 	## Success, We're Done
 else
+	## else will be equal to 1, as set by; fail="1" under "Check if XBMC is Active"
 	wake_failure
 	## Failure, We're Exiting
 fi
