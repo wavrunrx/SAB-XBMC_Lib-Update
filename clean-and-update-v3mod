@@ -180,8 +180,12 @@ do
 	trash=$(cd "$1" ; ls *.$junk 2> /dev/null)
 	if [ ! -z $trash ] ;
 	then
+		nodisp=$(( nodisp + 1 ))
+		if [ "$nodisp" -lt "2" ] ;
+			echo ">> Junk Files Found"
+		fi
 		find "$1" -name *.$junk -type f -exec rm -f {} \;
-		echo ">> .$junk Removed --> $trash"
+		echo ">> .$junk Removed --> [ $trash ]"
 		clean="0"
 	fi
 done
