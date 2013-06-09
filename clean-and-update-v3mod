@@ -119,7 +119,7 @@ name_failed ()
 
 ###### Check Post-Processing Outcome From SAB
 
-if [ "$7" -ge "1" ] ;
+if [ "$pproc" -ge "1" ] ;
 then
 	echo
 	echo "Error: SABnzbd Post-Processing Failed !"
@@ -130,7 +130,7 @@ fi
 
 ###### Define Junk Files & Set Video Category
 
-if [ "$5" = "$SAB_TV" ] ;
+if [ "$cat" = "$SAB_TV" ] ;
 then
 	echo
 	echo "[ TV ] Detected"
@@ -138,14 +138,14 @@ then
 	GARBAGE=$TV_GARBAGE
 	detec="1"
 fi
-if [ "$5" = "$SAB_Uncategorized_TV" ] ;
+if [ "$cat" = "$SAB_Uncategorized_TV" ] ;
 then
 	echo
 	echo "[ Uncategorized TV ] Detected"
 	echo
 	GARBAGE=$UNCATTV_GARBAGE
 fi
-if [ "$5" = "$SAB_Movies" ] ;
+if [ "$cat" = "$SAB_Movies" ] ;
 then
 	echo
 	echo "[ Movie ] Detected"
@@ -157,13 +157,13 @@ fi
 
 ###### Check For Proper Scene Naming Scheme, ex: s01e01, S01E01, etc.
 
-echo "$2" | grep -o [S,s]*[[:digit:]][E,e,X,x]*[[:digit:]] > /dev/null
+echo "$nzb" | grep -o [S,s]*[[:digit:]][E,e,X,x]*[[:digit:]] > /dev/null
 format="$?"
 if [ "$detec" = "1" ] ;
 then
 	if [ "$format" = "1" ] ;
 	then
-		echo "$2"
+		echo "$nzb"
 		echo
 		echo "Show Not Following A Recognizable Season/Episode Naming Standard"
 		echo "Ex: s01e01, s01x02, 01x03, etc..."
@@ -175,17 +175,19 @@ fi
 
 ###### Remove Junk Files
 
+nodisp="0"
 for junk in $GARBAGE ;
 do
-	trash=$(find "$1" -name "*.$junk" 2> /dev/null)
+	trash=$(cd "$fpath" ; ls *.$junk 2> /dev/null)
 	if [ ! -z $trash ] ;
 	then
 		nodisp=$(( nodisp + 1 ))
-		if [ "$nodisp" -lt "2" ] ;
+		if [[ "$nodisp" < "2" ]] ;
+		then
 			echo ">> Junk Files Found"
 		fi
-		find "$1" -name *.$junk -type f -exec rm -f {} \;
-		echo ">> .$junk Removed --> [ $trash ]"
+		find "$fpath" -name *.$junk -type f -exec rm -f {} \;
+		echo ".$junk Removed -----> [ $trash ]"
 		clean="0"
 	fi
 done
@@ -252,17 +254,17 @@ fi
 
 ###### TV Variables
 
-show_name_and_season=$(echo "$1/" | awk -F/ '{print $(NF-2)"/"$(NF-1)}' | sed "s/\b\(.\)/\u\1/g" | sed 's/\/S/\/s/g')
-show_name=$(echo `echo "$1/" | awk -F/ '{print $(NF-2)"/"$(NF-1)}'` | sed -e 's/\/.*//' | sed -e "s/\b\(.\)/\u\1/g")
-show_season=$(echo "$1/" | awk -F/ '{print $(NF-1)}' | sed 's/s//')
-show_episode=$(echo "$2/" | grep -o [S,s]*[[:digit:]][[:digit:]][E,e,X,x][[:digit:]][[:digit:]] | cut -c 4- | tr '[:upper:]' '[:lower:]' | sed 's/e//')
+show_name_and_season=$(echo "$fpath/" | awk -F/ '{print $(NF-2)"/"$(NF-1)}' | sed "s/\b\(.\)/\u\1/g" | sed 's/\/S/\/s/g')
+show_name=$(echo `echo "$fpath/" | awk -F/ '{print $(NF-2)"/"$(NF-1)}'` | sed -e 's/\/.*//' | sed -e "s/\b\(.\)/\u\1/g")
+show_season=$(echo "$fpath/" | awk -F/ '{print $(NF-1)}' | sed 's/s//')
+show_episode=$(echo "$nzb/" | grep -o [S,s]*[[:digit:]][[:digit:]][E,e,X,x][[:digit:]][[:digit:]] | cut -c 4- | tr '[:upper:]' '[:lower:]' | sed 's/e//')
 
 
 ###### Movie Variables
 
-movie_name_and_year=$(echo "$1/" | awk -F/ '{print $(NF-1)}' | sed -e "s/\b\(.\)/\u\1/g")
-movie_name=$(echo "$1/" | awk -F/ '{print $(NF-1)}' | sed -e 's/([^()]*)//g' | sed -e "s/\b\(.\)/\u\1/g")
-movie_year=$(echo "$1/" | awk '{print $NF}' | tr -d "/" | tr -d '()' )
+movie_name_and_year=$(echo "$fpath/" | awk -F/ '{print $(NF-1)}' | sed -e "s/\b\(.\)/\u\1/g")
+movie_name=$(echo "$fpath/" | awk -F/ '{print $(NF-1)}' | sed -e 's/([^()]*)//g' | sed -e "s/\b\(.\)/\u\1/g")
+movie_year=$(echo "$fpath/" | awk '{print $NF}' | tr -d "/" | tr -d '()' )
 
 
 debug ()
@@ -293,13 +295,13 @@ echo "Usenet Group.....................: $grp"
 
 ###### Update and Notify
 
-if [ "$5" = "$SAB_TV" ] ;
+if [ "$cat" = "$SAB_TV" ] ;
 then
 	if [ "$fail" = "0" ] ;
 	then
 		echo
 		echo ">> Sending GUI Notification"
-		echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: TV\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name  [ s$show_season e$show_episode ]"'.g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
+		echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: TV\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name  [ s$show_season / e$show_episode ]"'.g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
 		echo
 		echo ">> Updating Library --> [ TV ]"
 		echo "Continuing"
@@ -322,7 +324,7 @@ then
 	echo "[ Update Episode ]"
 	echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name_and_season"'.g'""
 	echo
-elif [ "$5" = "$SAB_Uncategorized_TV" ] ;
+elif [ "$cat" = "$SAB_Uncategorized_TV" ] ;
 then
 	if [ "$fail" = "0" ] ;
 	then
@@ -330,7 +332,7 @@ then
 		echo ">> Sending GUI Notification"
 		echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: TV-Uncat\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"Uncategorized TV"'.g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
 	fi
-elif [ "$5" = "$SAB_Movies" ] ;
+elif [ "$cat" = "$SAB_Movies" ] ;
 then
 	if [ "$fail" = "0" ] ;
 	then
@@ -349,7 +351,7 @@ then
 	echo "[ Register Movie ]"
 	echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$movie_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
 	echo
-elif [ "$5" = "$SAB_Documentaries" ] ;
+elif [ "$cat" = "$SAB_Documentaries" ] ;
 then
 	if [ "$fail" = "0" ] ;
 	then
@@ -368,7 +370,7 @@ then
 	echo "[ Register Movie ]"
 	echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$documentary_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
 	echo
-elif [ "$5" = "$SAB_Archive" ] ;
+elif [ "$cat" = "$SAB_Archive" ] ;
 then
 	if [ "$fail" = "0" ] ;
 	then
@@ -387,7 +389,7 @@ then
 	echo "[ Register Movie ]"
 	echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$archive_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
 	echo
-elif [ "$5" = "$SAB_Anime" ] ;
+elif [ "$cat" = "$SAB_Anime" ] ;
 then
 	if [ "$fail" = "0" ] ;
 	then
