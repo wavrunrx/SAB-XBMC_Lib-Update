@@ -292,6 +292,12 @@ echo "Clean Job Name...................: $cjob"
 echo "Usenet Group.....................: $grp"
 }
 
+folder_contents ()
+{
+echo "Contents of Folder:"
+ls "$fpath"*
+}
+
 
 ###### Update and Notify
 
@@ -315,6 +321,8 @@ then
 		echo
 	fi
 	debug
+	echo
+	folder_contents
 	echo
 	echo ">> Commands Run"
 	echo
@@ -345,6 +353,8 @@ then
 		echo
 	fi
 	debug
+	echo
+	folder_contents
 	echo
 	echo ">> Command Run"
 	echo
