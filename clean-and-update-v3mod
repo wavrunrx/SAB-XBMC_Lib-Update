@@ -322,8 +322,6 @@ then
 	fi
 	debug
 	echo
-	folder_contents
-	echo
 	echo ">> Commands Run"
 	echo
 	echo "[ (Re)Register Show ]"
@@ -375,6 +373,8 @@ then
 	fi
 	debug
 	echo
+	folder_contents
+	echo
 	echo ">> Command Run"
 	echo
 	echo "[ Register Movie ]"
@@ -394,6 +394,8 @@ then
 	fi
 	debug
 	echo
+	folder_contents
+	echo
 	echo ">> Command Run"
 	echo
 	echo "[ Register Movie ]"
@@ -412,6 +414,8 @@ then
 		echo
 	fi
 	debug
+	echo
+	folder_contents
 	echo
 	echo ">> Command Run"
 	echo
