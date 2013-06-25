@@ -71,7 +71,6 @@ grp=$6
 
 success ()
 {
-	echo
 	echo ">> Time Completed"
 	echo "`date +"%A %b %e, %Y"`"
 	echo "`date +"%r"`"
@@ -82,7 +81,6 @@ success ()
 
 wake_failure ()
 {
-	echo
 	echo ">> Time Failed"
 	echo "`date +"%A %b %e, %Y"`"
 	echo "`date +"%r"`"
@@ -94,7 +92,6 @@ wake_failure ()
 
 processing_failed ()
 {
-	echo
 	echo ">> Time Failed"
 	echo "`date +"%A %b %e, %Y"`"
 	echo "`date +"%r"`"
@@ -106,7 +103,6 @@ processing_failed ()
 
 name_failed ()
 {
-	echo
 	echo ">> Time Failed"
 	echo "`date +"%A %b %e, %Y"`"
 	echo "`date +"%r"`"
@@ -294,7 +290,7 @@ echo "Usenet Group.....................: $grp"
 
 folder_contents ()
 {
-echo "Contents of Folder:"
+echo ">> Contents of Folder"
 ls "$fpath"*
 }
 
