@@ -58,6 +58,8 @@ TV_GARBAGE="nfo srt sfv srr url txt md5 diz jpg bmp png sub idx srt"
 UNCATTV_GARBAGE="nfo srt sfv srr url txt md5 diz jpg bmp png sub idx srt"
 MOVIE_GARBAGE="sfv srr url txt md5 diz jpg bmp png"
 
+## Time normally required for your XBMC machine to boot into a useable state (60 seconds is usually more then enough here)
+sleep_time="60"
 
 #############################################
 ###### ATTENTION: DO NOT EDIT PAST THIS POINT
@@ -245,8 +247,8 @@ do
 		wake_dep
 		echo "Waking XBMC [ MAC: $xbmc_mac ]"
 		wakeonlan $xbmc_mac > /dev/null 2>&1
-		echo "Sleeping 60 seconds. "
-		sleep 60
+		echo "Sleeping "$sleep_time" seconds. "
+		sleep "$sleep_time"
 		echo "Timer Completed."
 		echo "Retrying XBMC..."
 		echo
