@@ -200,7 +200,7 @@ fi
 
 ###### Check Dependancies Required For This Script To Run Properly
 
-wake_dep ()
+deps ()
 {
 DEPENDENCIES="wakeonlan curl"
 deps_ok="YES"
@@ -239,12 +239,11 @@ do
 		fail="1"
 		break
 	fi
-	ping -c 4 $xbmc_ip > /dev/null 2>&1
-	result=$?
-	if [ "$result" = "1" ] ;
+	xbmc_status=$(curl -v -H "Content-Type: application/json" -u $xbmc_user:$xbmc_pass -X POST -d '{"jsonrpc":"2.0","method":"JSONRPC.Ping","id":"1"}' http://$xbmc_ip:$xbmc_port/jsonrpc 2>/dev/null | cut -c 36- | sed -e 's/\":"/: /g' -e 's/["{}]//g')
+	if [ "$xbmc_status" != "pong" ] ;
 	then
 		echo ">> XBMC Is Inactive"
-		wake_dep
+		deps
 		echo "Waking XBMC [ MAC: $xbmc_mac ]"
 		wakeonlan $xbmc_mac > /dev/null 2>&1
 		echo "Sleeping "$sleep_time" seconds. "
