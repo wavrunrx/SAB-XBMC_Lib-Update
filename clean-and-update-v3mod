@@ -314,14 +314,26 @@ echo "Usenet Group.....................: $grp"
 
 folder_contents ()
 {
-echo ">> Contents of Folder"
 if [ "$cat" =  "$SAB_Movies" ] ;
 then
+	echo ">> Contents of [ Movie ] Folder"
 	ls "$fpath"*
 elif [ "$cat" = "$SAB_TV" ] ;
 then
-	ls "$fpath"/[S,s]$show_season[E,e]$show_episode*
+	echo ">> Contents of [ TV ] Folder"
+	ls "$fpath"/[S,s]$show_season[E,e,X,x]$show_episode*
 fi
+}
+
+rename_files_to_scene_name ()
+{
+cd "$fpath"
+for i in * ;
+do
+	fn=$(echo $nzb | sed 's/\(.*\)\..*/\1/')
+	ext=$(echo $i | sed 's/.*\.//')
+	mv -f "$i" "$fn".$ext
+done
 }
 
 
@@ -380,6 +392,7 @@ then
 	fi
 	debug
 	echo
+	rename_files_to_scene_name
 	folder_contents
 	echo
 	echo ">> Command Run"
@@ -401,6 +414,7 @@ then
 	fi
 	debug
 	echo
+	rename_files_to_scene_name
 	folder_contents
 	echo
 	echo ">> Command Run"
@@ -443,6 +457,7 @@ then
 	fi
 	debug
 	echo
+	rename_files_to_scene_name
 	folder_contents
 	echo
 	echo ">> Command Run"
