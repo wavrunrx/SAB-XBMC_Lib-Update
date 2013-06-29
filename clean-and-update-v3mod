@@ -72,6 +72,8 @@ cjob=$3
 nzb=$2
 grp=$6
 
+fail="0"
+
 success ()
 {
 	echo ">> Time Completed"
@@ -204,14 +206,16 @@ deps ()
 {
 DEPENDENCIES="wakeonlan curl"
 deps_ok="YES"
+
 for dep in $DEPENDENCIES
 do
 	if ! which $dep &>/dev/null ;
 	then
-	echo "This Script Requires $dep To Run But It Is Not Installed"
-	deps_ok="NO"
+		echo "This Script Requires $dep To Run But It Is Not Installed"
+		deps_ok="NO"
 	fi
 done
+
 if [[ "$deps_ok" == "NO" ]];
 then
 	echo "Unmet Dependencies."
@@ -223,7 +227,6 @@ fi
 
 ###### Check if XBMC is Active
 
-echo
 attempt="0"
 
 while true ;
@@ -240,14 +243,14 @@ do
 		break
 	fi
 	xbmc_status=$(curl -v -H "Content-Type: application/json" -u $xbmc_user:$xbmc_pass -X POST -d '{"jsonrpc":"2.0","method":"JSONRPC.Ping","id":"1"}' http://$xbmc_ip:$xbmc_port/jsonrpc 2>/dev/null | cut -c 36- | sed -e 's/\":"/: /g' -e 's/["{}]//g')
-	if [ "$xbmc_status" != "pong" ] ;
+	if [[ "$xbmc_status" != "pong" ]] ;
 	then
 		echo ">> XBMC Is Inactive"
 		deps
 		echo "Waking XBMC [ MAC: $xbmc_mac ]"
 		wakeonlan $xbmc_mac > /dev/null 2>&1
-		echo "Sleeping "$sleep_time" seconds. "
-		sleep "$sleep_time"
+		echo "Sleeping $sleep_time seconds. "
+		sleep $sleep_time
 		echo "Timer Completed."
 		echo "Retrying XBMC..."
 		echo
@@ -335,7 +338,10 @@ for i in * ;
 do
 	fn=$(echo $nzb | sed 's/\(.*\)\..*/\1/')
 	ext=$(echo $i | sed 's/.*\.//')
-	mv -f "$i" "$fn".$ext
+	if [ "$i" != "$fn".$ext ] ;
+	then
+		mv -f "$i" "$fn".$ext
+	fi
 done
 }
 
