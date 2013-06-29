@@ -158,7 +158,7 @@ fi
 
 ###### Check For Proper 'Scene'  Season/Episode Naming Scheme, ex: s01e01, S01E01, etc...
 
-echo "$nzb" | grep -o [S,s]*[[:digit:]][E,e,X,x]*[[:digit:]] > /dev/null
+echo "$nzb" | grep -o [S,s][[:digit:]][E,e,X,x][[:digit:]] > /dev/null
 format="$?"
 if [ "$detec" = "1" ] ;
 then
@@ -204,7 +204,7 @@ fi
 
 deps ()
 {
-DEPENDENCIES="wakeonlan curl"
+DEPENDENCIES="wakeonlan curl test"
 deps_ok="YES"
 
 for dep in $DEPENDENCIES
@@ -323,12 +323,9 @@ folder_contents ()
 {
 if [ "$cat" =  "$SAB_Movies" ] ;
 then
-	echo ">> Contents of [ Movie ] Folder, Related To: [ $movie_name ] "
+	echo ">> Contents Of Folder For: [ $movie_name]"
+	test ! -f "$fpath"/*.nfo && echo "No NFO Found !" && echo "=============="
 	ls "$fpath"* | xargs -n1 basename
-elif [ "$cat" = "$SAB_TV" ] ;
-then
-	echo ">> Contents of [ TV ] Folder, Related To: Season [ $show_season ] Episode [ $show_episode ]"
-	ls "$fpath"/[S,s]$show_season[E,e,X,x]$show_episode* | xargs -n1 basename
 fi
 }
 
@@ -371,7 +368,6 @@ then
 	fi
 	debug
 	echo
-	folder_contents
 	echo
 	echo ">> Commands Run"
 	echo "Re/Register Show"
