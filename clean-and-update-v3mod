@@ -155,6 +155,7 @@ then
 	echo ">> No Junk Files Found"
 	echo "Nothing Deleted"
 fi
+echo
 }
 
 
@@ -208,7 +209,7 @@ then
 		echo
 		echo "Donwloaded Files Not Following A Recognizable Season/Episode Naming Scheme"
 		echo "Ex: s01e01, s01x02, 01x03, etc..."
-		echo "Further Output Halted"
+		echo "Further Processing Halted"
 		echo
 		delete_junk
 		name_failed
@@ -228,7 +229,7 @@ then
 		echo "$nzb"
 		echo
 		echo "Does Not Contain A Release Year, As Required By Scene Naming Conventions"
-		echo "Further Output Halted"
+		echo "Further Processing Halted"
 		echo
 		delete_junk
 		year_failed
