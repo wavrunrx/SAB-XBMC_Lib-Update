@@ -117,6 +117,46 @@ name_failed ()
 	exit 1
 }
 
+year_failed ()
+{
+	echo ">> Time Failed"
+	echo "`date +"%A %b %e, %Y"`"
+	echo "`date +"%r"`"
+	echo
+	echo "Failed: Library Not Updated."
+	echo "Failed: Issue: Movie Release Year Unknown."
+	exit 1
+}
+
+
+###### Delete Junk Files
+
+delete_junk ()
+{
+nodisp="0"
+clean="1"
+for junk in $GARBAGE ;
+do
+	trash=$(cd "$fpath" ; ls *.$junk 2> /dev/null)
+	if [ ! -z $trash ] ;
+	then
+		nodisp=$(( nodisp + 1 ))
+		if [[ "$nodisp" < "2" ]] ;
+		then
+			echo ">> Junk Files Found"
+		fi
+		find "$fpath" -name *.$junk -type f -exec rm -f {} \;
+		echo ".$junk Deleted -----> [ $trash ]"
+		clean="0"
+	fi
+done
+if [ "$clean" != "0" ] ;
+then
+	echo ">> No Junk Files Found"
+	echo "Nothing Deleted"
+fi
+}
+
 
 ###### Check Post-Processing Outcome From SAB
 
@@ -146,7 +186,7 @@ then
 	echo
 	GARBAGE=$UNCATTV_GARBAGE
 fi
-if [ "$cat" = "$SAB_Movies" ] ;
+if [[ "$cat" = "$SAB_Movies" || "$cat" = "$SAB_Anime" || "$cat" = "$SAB_Documentaries" || "$cat" = "$SAB_Archive" ]] ;
 then
 	echo
 	echo "[ Movie ] Detected"
@@ -156,9 +196,9 @@ then
 fi
 
 
-###### Check For Proper 'Scene'  Season/Episode Naming Scheme, ex: s01e01, S01E01, etc...
+###### Check For Proper 'Scene' Season/Episode Naming Scheme, ex: s01e01, S01E01, etc...
 
-echo "$nzb" | grep -o [S,s][[:digit:]][E,e,X,x][[:digit:]] > /dev/null
+echo "$nzb" | grep -o [S,s,Season,season][[:digit:]]*[E,e,X,x,Episode,episode][[:digit:]] > /dev/null
 format="$?"
 if [ "$detec" = "1" ] ;
 then
@@ -168,36 +208,38 @@ then
 		echo
 		echo "Donwloaded Files Not Following A Recognizable Season/Episode Naming Scheme"
 		echo "Ex: s01e01, s01x02, 01x03, etc..."
+		echo "Further Output Halted"
+		echo
+		delete_junk
 		name_failed
 		## Failure, We're Exiting
 	fi
 fi
 
 
-###### Delete Junk Files
+###### Check For Proper 'Scene' Movie Naming
 
-nodisp="0"
-clean="1"
-for junk in $GARBAGE ;
-do
-	trash=$(cd "$fpath" ; ls *.$junk 2> /dev/null)
-	if [ ! -z $trash ] ;
-	then
-		nodisp=$(( nodisp + 1 ))
-		if [[ "$nodisp" < "2" ]] ;
-		then
-			echo ">> Junk Files Found"
-		fi
-		find "$fpath" -name *.$junk -type f -exec rm -f {} \;
-		echo ".$junk Deleted -----> [ $trash ]"
-		clean="0"
-	fi
-done
-if [ "$clean" != "0" ] ;
+if [ "$detec" = "0" ] ;
 then
-	echo ">> No Junk Files Found"
-	echo "Nothing Deleted"
+	year=$(echo "$nzb" | grep -o [[:digit:]][[:digit:]][[:digit:]][[:digit:]] | sed s'/1080//g;/^$/d')
+	if [ "$year" = "" ] ;
+	then
+		echo "The NZB Release Of"
+		echo "$nzb"
+		echo
+		echo "Does Not Contain A Release Year, As Required By Scene Naming Conventions"
+		echo "Further Output Halted"
+		echo
+		delete_junk
+		year_failed
+		## Failure, We're Exiting
+	fi
 fi
+
+
+###### Delete Junk Files (Defined Above)
+
+delete_junk
 
 
 ###### Check Dependancies Required For This Script To Run Properly
@@ -284,7 +326,7 @@ fi
 show_name_and_season=$(echo "$fpath/" | awk -F/ '{print $(NF-2)"/"$(NF-1)}' | sed "s/\b\(.\)/\u\1/g" | sed 's/\/S/\/s/g')
 show_name=$(echo `echo "$fpath/" | awk -F/ '{print $(NF-2)"/"$(NF-1)}'` | sed -e 's/\/.*//' | sed -e "s/\b\(.\)/\u\1/g")
 show_season=$(echo "$fpath/" | awk -F/ '{print $(NF-1)}' | sed 's/s//')
-show_episode=$(echo "$nzb/" | grep -o [S,s]*[[:digit:]][[:digit:]][E,e,X,x][[:digit:]][[:digit:]] | cut -c 4- | tr '[:upper:]' '[:lower:]' | sed 's/e//')
+show_episode=$(echo "$nzb/" | grep -o [S,s,Season,season]*[[:digit:]][[:digit:]][E,e,X,x,Episode,episode][[:digit:]][[:digit:]] | cut -c 4- | tr '[:upper:]' '[:lower:]' | sed 's/e//')
 
 
 ###### Movie Variables
@@ -323,9 +365,10 @@ folder_contents ()
 {
 if [ "$cat" =  "$SAB_Movies" ] ;
 then
+	sleep 5
 	echo ">> Contents Of Folder For: [ $movie_name]"
 	test ! -f "$fpath"/*.nfo && echo "No NFO Found !" && echo "=============="
-	ls "$fpath"* | xargs -n1 basename
+	ls "$fpath"* | awk -F"/" '{ print $NF }'
 fi
 }
 
