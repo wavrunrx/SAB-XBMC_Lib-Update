@@ -155,7 +155,6 @@ then
 	echo ">> No Junk Files Found"
 	echo "Nothing Deleted"
 fi
-echo
 }
 
 
@@ -399,24 +398,23 @@ then
 		echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: TV\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name  [ s$show_season / e$show_episode ]"'.g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
 		sleep 3
 		echo
-		echo ">> Updating Library --> [ TV ]"
+		echo ">> Updating Library -----> [ TV ]"
 		echo "Continuing"
 		echo
 		echo ">> (Re)Register: TV Show [ $show_name ] with XBMC Library"
 		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
 		echo
 		sleep 5
-		echo ">> Adding: Season [ $show_season ] Episode [ $show_episode ] to XBMC Library"
+		echo ">> Register: Season [ $show_season ] Episode [ $show_episode ] to XBMC Library"
 		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name_and_season"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
 		echo
 	fi
 	debug
 	echo
-	echo
 	echo ">> Commands Run"
-	echo "Re/Register Show"
+	echo ">  Re/Register Show:"
 	echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name"'.g'""
-	echo "Update Episode"
+	echo ">  Register Episode:"
 	echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name_and_season"'.g'""
 	echo
 elif [ "$cat" = "$SAB_Uncategorized_TV" ] ;
@@ -436,7 +434,7 @@ then
 		echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: Movies\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's/zzz/'"$movie_name_and_year"'/g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
 		sleep 3
 		echo
-		echo ">> Updating Library --> [ Movies ]"
+		echo ">> Updating Library -----> [ Movies ]"
 		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$movie_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
 		echo
 	fi
@@ -446,7 +444,7 @@ then
 	folder_contents
 	echo
 	echo ">> Command Run"
-	echo "Register Movie"
+	echo ">  Register Movie:"
 	echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$movie_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
 	echo
 elif [ "$cat" = "$SAB_Documentaries" ] ;
@@ -458,7 +456,7 @@ then
 		echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: Documentary\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's/zzz/'"$movie_name_and_year"'/g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
 		sleep 3
 		echo
-		echo ">> Updating Library --> [ Documentaries ]"
+		echo ">> Updating Library -----> [ Documentaries ]"
 		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$documentary_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
 		echo
 	fi
@@ -468,7 +466,7 @@ then
 	folder_contents
 	echo
 	echo ">> Command Run"
-	echo "Register Movie"
+	echo ">  Register Movie:"
 	echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$documentary_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
 	echo
 elif [ "$cat" = "$SAB_Archive" ] ;
@@ -480,16 +478,17 @@ then
 		echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: Archive\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's/zzz/'"$movie_name_and_year"'/g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
 		sleep 3
 		echo
-		echo ">> Updating Library --> [ Archive ]"
+		echo ">> Updating Library -----> [ Archive ]"
 		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$archive_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
 		echo
 	fi
 	debug
 	echo
+	rename_files_to_scene_name
 	folder_contents
 	echo
 	echo ">> Command Run"
-	echo "Register Movie"
+	echo ">  Register Movie:"
 	echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$archive_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
 	echo
 elif [ "$cat" = "$SAB_Anime" ] ;
@@ -501,7 +500,7 @@ then
 		echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: Anime\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's/zzz/'"$movie_name_and_year"'/g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
 		sleep 3
 		echo
-		echo ">> Updating Library --> [ Anime ]"
+		echo ">> Updating Library -----> [ Anime ]"
 		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$anime_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
 		echo
 	fi
@@ -511,7 +510,7 @@ then
 	folder_contents
 	echo
 	echo ">> Command Run"
-	echo "Register Movie"
+	echo ">  Register Movie:"
 	echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$anime_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
 	echo
 fi
