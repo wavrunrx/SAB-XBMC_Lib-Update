@@ -191,9 +191,9 @@ do
 		find "$fpath" -name *.$junk -type f -exec rm -f {} \;
 		echo ".$junk Deleted -----> [ $trash ]"
 		clean="0"
-		echo
 	fi
 done
+echo
 if [ "$clean" != "0" ] ;
 then
 	echo ">> No Junk Files Found"
@@ -387,7 +387,6 @@ delete_junk
 
 ###### Conditional: Check If XBMC Is Active
 
-echo
 while true ;
 do
 	attempt=$(( attempt + 1 ))
@@ -460,10 +459,10 @@ then
 		echo
 		echo ">> Updating Library ------> [ TV ]"
 		echo " > Re/Register: TV Show [ $show_name ] with XBMC Library"
-		echo    "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
+		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		sleep 10
 		echo " > Register: Season [ $show_season ] Episode [ $show_episode ] with XBMC Library"
-		echo    "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name_and_season"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
+		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name_and_season"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		echo
 	fi
 	debug
@@ -492,7 +491,7 @@ then
 		sleep 5
 		echo
 		echo ">> Updating Library ------> [ Movies ]"
-		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$movie_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
+		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$movie_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		echo
 	fi
 	debug
@@ -514,7 +513,7 @@ then
 		sleep 5
 		echo
 		echo ">> Updating Library ------> [ Documentaries ]"
-		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$documentary_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
+		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$documentary_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		echo
 	fi
 	debug
@@ -536,7 +535,7 @@ then
 		sleep 5
 		echo
 		echo ">> Updating Library ------> [ Archive ]"
-		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$archive_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
+		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$archive_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		echo
 	fi
 	debug
@@ -558,7 +557,7 @@ then
 		sleep 5
 		echo
 		echo ">> Updating Library ------> [ Anime ]"
-		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$anime_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
+		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$anime_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		echo
 	fi
 	debug
