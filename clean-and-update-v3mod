@@ -94,18 +94,29 @@ movie_year=$(echo "$fpath/" | awk '{print $NF}' | tr -d "/" | tr -d '()' )
 success ()
 {
 	echo ">> Time Completed"
-	echo "`date +"%A %b %e, %Y"`"
-	echo "`date +"%r"`"
+	echo -n "   "&& echo "`date +"%A %b %e, %Y"`"
+	echo -n "   "&& echo "`date +"%r"`"
 	echo
 	echo "Success: Library Update Completed."
+	exit 0
+}
+
+success_no_change ()
+{
+	echo ">> Time Completed"
+	echo -n "   "&& echo "`date +"%A %b %e, %Y"`"
+	echo -n "   "&& echo "`date +"%r"`"
+	echo
+	echo "Success: Library Not Updated."
+	echo "Success: Download Completed."
 	exit 0
 }
 
 wake_failure ()
 {
 	echo ">> Time Failed"
-	echo "`date +"%A %b %e, %Y"`"
-	echo "`date +"%r"`"
+	echo -n "   "&& echo "`date +"%A %b %e, %Y"`"
+	echo -n "   "&& echo "`date +"%r"`"
 	echo
 	echo "Failed: Library Not Updated."
 	echo "Failed: Issue: XBMC Didn't Respond To Wake Requests."
@@ -115,8 +126,8 @@ wake_failure ()
 processing_failed ()
 {
 	echo ">> Time Failed"
-	echo "`date +"%A %b %e, %Y"`"
-	echo "`date +"%r"`"
+	echo -n "   "&& echo "`date +"%A %b %e, %Y"`"
+	echo -n "   "&& echo "`date +"%r"`"
 	echo
 	echo "Failed: Library Not Updated."
 	echo "Failed: Issue: SABnzbd Post-Processing Failure."
@@ -126,8 +137,8 @@ processing_failed ()
 name_failed ()
 {
 	echo ">> Time Failed"
-	echo "`date +"%A %b %e, %Y"`"
-	echo "`date +"%r"`"
+	echo -n "   "&& echo "`date +"%A %b %e, %Y"`"
+	echo -n "   "&& echo "`date +"%r"`"
 	echo
 	echo "Failed: Library Not Updated."
 	echo "Failed: Issue: Season/Episode Naming Scheme Not Recognized."
@@ -137,8 +148,8 @@ name_failed ()
 year_failed ()
 {
 	echo ">> Time Failed"
-	echo "`date +"%A %b %e, %Y"`"
-	echo "`date +"%r"`"
+	echo -n "   "&& echo "`date +"%A %b %e, %Y"`"
+	echo -n "   "&& echo "`date +"%r"`"
 	echo
 	echo "Failed: Library Not Updated."
 	echo "Failed: Issue: Movie Release Year Unknown."
@@ -189,7 +200,7 @@ do
 			echo ">> Junk Files Found"
 		fi
 		find "$fpath" -name *.$junk -type f -exec rm -f {} \;
-		echo ".$junk Deleted -----> [ $trash ]"
+		echo -n "   "&& echo ".$junk Deleted -----> [ $trash ]"
 		clean="0"
 	fi
 done
@@ -197,7 +208,8 @@ echo
 if [ "$clean" != "0" ] ;
 then
 	echo ">> No Junk Files Found"
-	echo "Nothing Deleted"
+	echo -n "   "&& echo "Nothing Deleted"
+	echo
 fi
 }
 
@@ -208,24 +220,24 @@ debug ()
 echo ">> Debuging Info"
 if [ $detec = "1" ] ;
 then
-	echo "Show Name & Season..............: $show_name_and_season"
-	echo "Show Name.......................: $show_name"
-	echo "Show Season.....................: $show_season"
-	echo "Show Episode....................: $show_episode"
+	echo -n "   "&& echo "Show Name & Season..............: $show_name_and_season"
+	echo -n "   "&& echo "Show Name.......................: $show_name"
+	echo -n "   "&& echo "Show Season.....................: $show_season"
+	echo -n "   "&& echo "Show Episode....................: $show_episode"
 elif [ "$detec" = "0" ] ;
 then
-	echo "Movie Name & Year...............: $movie_name_and_year"
-	echo "Movie Name......................: $movie_name"
-	echo "Movie Year......................: $movie_year"
+	echo -n "   "&& echo "Movie Name & Year...............: $movie_name_and_year"
+	echo -n "   "&& echo "Movie Name......................: $movie_name"
+	echo -n "   "&& echo "Movie Year......................: $movie_year"
 fi
 echo
 echo ">> SABnzbd Data"
-echo "SABnzbd Post-Processing.........: `if [[ "$pproc" -eq "0" ]]; then echo "Passed" ; else echo "Failed" ; fi` [ $pproc ]"
-echo "User Defined Category...........: $cat"
-echo "Final Path of Job...............: $fpath"
-echo "NZB File(s) Name................: $nzb"
-echo "Clean Job Name..................: $cjob"
-echo "Usenet Group....................: $grp"
+echo -n "   "&& echo "Post-Processing Result..........: `if [[ "$pproc" -eq "0" ]]; then echo "Passed" ; else echo "Failed" ; fi` [ $pproc ]"
+echo -n "   "&& echo "User Defined Category...........: $cat"
+echo -n "   "&& echo "Final Path of Job...............: $fpath"
+echo -n "   "&& echo "NZB File(s) Name................: $nzb"
+echo -n "   "&& echo "Clean Job Name..................: $cjob"
+echo -n "   "&& echo "Usenet Group....................: $grp"
 }
 
 
@@ -286,8 +298,8 @@ if [ "$cat" =  "$SAB_Movies" ] ;
 then
 	sleep 5
 	echo ">> Contents Of Folder For: [ $movie_name]"
-	test ! -f "$fpath"/*.nfo && echo " > No NFO Found !" && echo "   -----------"
-	ls "$fpath"* | awk -F"/" '{ print $NF }'
+	test ! -f "$fpath"/*.nfo && echo " > No NFO Found !" && echo "   --------------"
+	echo -n "   "&& echo "`ls "$fpath"* | awk -F"/" '{ print $NF }'`"
 fi
 }
 
@@ -302,7 +314,7 @@ fi
 if [ "$cat" = "$SAB_TV" ] ;
 then
 	echo
-	echo "[ TV ] Detected"
+	echo ">> [ TV ] Detected"
 	echo
 	GARBAGE=$TV_GARBAGE
 	detec="1"
@@ -310,14 +322,14 @@ fi
 if [ "$cat" = "$SAB_Uncategorized_TV" ] ;
 then
 	echo
-	echo "[ Uncategorized TV ] Detected"
+	echo ">> [ Uncategorized TV ] Detected"
 	echo
 	GARBAGE=$UNCATTV_GARBAGE
 fi
 if [[ "$cat" = "$SAB_Movies" || "$cat" = "$SAB_Anime" || "$cat" = "$SAB_Documentaries" || "$cat" = "$SAB_Archive" ]] ;
 then
 	echo
-	echo "[ Movie ] Detected"
+	echo ">> [ Movie ] Detected"
 	echo
 	GARBAGE=$MOVIE_GARBAGE
 	detec="0"
@@ -392,10 +404,11 @@ do
 	attempt=$(( attempt + 1 ))
 	if [ "$attempt" = "7" ] ;
 	then
-		echo
-		echo ">> XBMC Has Not Responded to WOL Packets."
-		echo ">> Attempted To Wake XBMC [ 2 ] Times."
-		echo ">> XBMC Has Failed to Wake"
+		echo "======================================="
+		echo ">> XBMC Has Not Responded to WOL Packets <<"
+		echo ">> Attempted To Wake XBMC [ 2 ] Times      <<"
+		echo ">> XBMC Has Failed to Wake                 <<"
+		echo "======================================="
 		echo
 		fail="1"
 		break
@@ -405,12 +418,12 @@ do
 	then
 		echo ">> XBMC Is Inactive"
 		deps
-		echo "Waking XBMC ------> [ MAC: $xbmc_mac ]"
+		echo -n "   "&& echo "Waking XBMC ------> [ MAC: $xbmc_mac ]"
 		wakeonlan $xbmc_mac > /dev/null 2>&1
-		echo "Pausing $sleep_time seconds. "
+		echo -n "   "&& echo "Pausing $sleep_time seconds. "
 		sleep $sleep_time
-		echo "Timer Completed."
-		echo "Retrying XBMC..."
+		echo -n "   "&& echo "Timer Completed."
+		echo -n "   "&& echo "Retrying XBMC..."
 		echo
 		attempt=$(( attempt + 2 ))
 		tried="1"
@@ -428,11 +441,11 @@ then
 	if [ "$tried" = "1" ] ;
 	then
 		echo ">> XBMC Now Active"
-		echo "Continuing"
+		echo -n "   "&& echo "Continuing"
 		fail="0"
 	else
 		echo ">> XBMC Is Active"
-		echo "Continuing"
+		echo -n "   "&& echo "Continuing"
 		fail="0"
 	fi
 fi
@@ -454,11 +467,11 @@ then
 	then
 		echo
 		echo ">> Sending GUI Notification"
-		echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: TV\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name  [ s$show_season / e$show_episode ]"'.g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
+		echo -n "   "&& echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: TV\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name  [ s$show_season / e$show_episode ]"'.g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		sleep 5
 		echo
-		echo ">> Updating Library ------> [ TV ]"
-		echo " > Re/Register: TV Show [ $show_name ] with XBMC Library"
+		echo ">> Updating: - TV - Library"
+		echo " > Re/Register: Show [ $show_name ] with XBMC Library"
 		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		sleep 10
 		echo " > Register: Season [ $show_season ] Episode [ $show_episode ] with XBMC Library"
@@ -479,7 +492,9 @@ then
 	then
 		echo
 		echo ">> Sending GUI Notification"
-		echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: TV-Uncat\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"Uncategorized TV"'.g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
+		echo -n "   "&& echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: TV-Uncat\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"Uncategorized TV"'.g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
+		echo
+		uncat="1"
 	fi
 elif [ "$cat" = "$SAB_Movies" ] ;
 then
@@ -487,10 +502,10 @@ then
 	then
 		echo
 		echo ">> Sending GUI Notification"
-		echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: Movies\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's/zzz/'"$movie_name_and_year"'/g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
+		echo -n "   "&& echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: Movies\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's/zzz/'"$movie_name_and_year"'/g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		sleep 5
 		echo
-		echo ">> Updating Library ------> [ Movies ]"
+		echo ">> Updating: - Movies - Library"
 		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$movie_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		echo
 	fi
@@ -509,10 +524,10 @@ then
 	then
 		echo
 		echo ">> Sending GUI Notification"
-		echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: Documentary\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's/zzz/'"$movie_name_and_year"'/g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
+		echo -n "   "&& echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: Documentary\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's/zzz/'"$movie_name_and_year"'/g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		sleep 5
 		echo
-		echo ">> Updating Library ------> [ Documentaries ]"
+		echo ">> Updating: - Documentaries - Library"
 		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$documentary_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		echo
 	fi
@@ -531,10 +546,10 @@ then
 	then
 		echo
 		echo ">> Sending GUI Notification"
-		echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: Archive\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's/zzz/'"$movie_name_and_year"'/g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
+		echo -n "   "&& echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: Archive\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's/zzz/'"$movie_name_and_year"'/g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		sleep 5
 		echo
-		echo ">> Updating Library ------> [ Archive ]"
+		echo ">> Updating: - Archive - Library"
 		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$archive_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		echo
 	fi
@@ -553,10 +568,10 @@ then
 	then
 		echo
 		echo ">> Sending GUI Notification"
-		echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: Anime\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's/zzz/'"$movie_name_and_year"'/g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]//g'
+		echo -n "   "&& echo "curl -v -H \"Content-type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"GUI.ShowNotification\",\"params\":{\"title\":\" Library Update: Anime\",\"message\":\" zzz\",\"image\":\"https://dl.dropbox.com/u/66962/Sab/sabnzbd_512.png\",\"displaytime\":10000}}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's/zzz/'"$movie_name_and_year"'/g' | sh 2>/dev/null | cut -c 26- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		sleep 5
 		echo
-		echo ">> Updating Library ------> [ Anime ]"
+		echo ">> Updating - Anime - Library"
 		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$anime_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		echo
 	fi
@@ -577,6 +592,11 @@ fi
 sleep 5
 if [ "$fail" = "0" ] ;
 then
+	if [ "$uncat" = "1" ] ;
+	then
+	## Success, We're Done, But Library Not Updated
+		success_no_change
+	fi
 	success
 	## Success, We're Done
 else
