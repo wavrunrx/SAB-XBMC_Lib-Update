@@ -14,7 +14,7 @@
 #	may be used to endorse or promote products derived from this software
 #	without specific prior written permission.
 
-###### Compatibility: XBMC (And OpenELEC) Frodo
+###### Compatibility: XBMC & OpenELEC Frodo
 
 ###### Change The Following Variables:
 
@@ -28,23 +28,39 @@ xbmc_mac="BC:5F:F4:1D:8C:B4"
 xbmc_pass="xbmc"
 xbmc_user="xbmc"
 
-## Set this to the IP of the machine running SABnzbd, 127.0.0.1 if its the same machine
+## Set this to the IP of the REMOTE machine running SABnzbd; leave blank if LOCAL
 downloader="192.168.2.104"
 
 ## What file-sharing protocol are we using for our remote shares. set to "smb", or "nfs" (others may work; havent personally tested them with this script)
 protocol="nfs"
+uri="://"
 
-## Downloader scan paths
-tv_path="export/_TV"
-### uncat_tv_path= DO NOT SET
+## Is the SABnzbd downloader on a LOCAL or REMOTE machine ?
+location="remote"
+
+## LOCAL Downloader scan paths (set this for a LOCAL SABnzbd downloader)
+tv_path_local="var/media/<device-id>/_TV"
+### uncat_tv_path= DO-NOT-SET
 ### For uncategorized tv, we have no path to define, since we dont scan it to the xbmc library.
 ### we only send a visual notification to XBMC when SAB finishes an uncategorized tv download.
 ### examples include: out of season episodes; single episode specials, newscast documentaries, etc.
 ### these types of video are problematic when matching metadata with thetvdb, and are best left unidentified.
-anime_path="export/_Anime"
-archive_path="export/_To-Archive"
-documentary_path="export/_Documentaries"
-movie_path="export/_Movies"
+anime_path_local="var/media/<device-id>/_Anime"
+archive_path_local="var/media/<device-id>/_To-Archive"
+documentary_path_local="var/media/<device-id>/_Documentaries"
+movie_path_local="var/media/<device-id>/_Movies"
+
+## REMOTE Downloader scan paths (set this for a REMOTE SABnzbd downloader)
+tv_path_remote="export/_TV"
+### uncat_tv_path= DO-NOT-SET
+### For uncategorized tv, we have no path to define, since we dont scan it to the xbmc library.
+### we only send a visual notification to XBMC when SAB finishes an uncategorized tv download.
+### examples include: out of season episodes; single episode specials, newscast documentaries, etc.
+### these types of video are problematic when matching metadata with thetvdb, and are best left unidentified.
+anime_path_remote="export/_Anime"
+archive_path_remote="export/_To-Archive"
+documentary_path_remote="export/_Documentaries"
+movie_path_remote="export/_Movies"
 
 ## Set your SABnzbd categories here ...
 ## Note: if you add your own categories that i dont have listed here, you'll have to make sure they are set up elsewhere in the script
@@ -69,7 +85,6 @@ sleep_time="60"
 ###### ATTENTION: DO NOT EDIT PAST THIS POINT
 ######
 #############################################
-
 
 pproc=$7
 cat=$5
@@ -97,6 +112,7 @@ success ()
 	echo -n "   "&& echo "`date +"%A %b %e, %Y"`"
 	echo -n "   "&& echo "`date +"%r"`"
 	echo
+	echo "Success: No Errors Detected"
 	echo "Success: Library Update Completed."
 	exit 0
 }
@@ -156,6 +172,17 @@ year_failed ()
 	exit 1
 }
 
+bad_deps ()
+{
+	echo ">> Time Failed"
+	echo -n "   "&& echo "`date +"%A %b %e, %Y"`"
+	echo -n "   "&& echo "`date +"%r"`"
+	echo
+	echo "Failed: Library Not Updated."
+	echo "Failed: Issue: Script Dependencies Not Met."
+	exit 1
+}
+
 
 ###### Check Dependencies Required For This Script To Run Properly
 
@@ -178,7 +205,20 @@ if [[ "$deps_ok" == "NO" ]];
 then
 	echo "Unmet Dependencies."
 	echo "Further Processing Halted"
-	fail="1"
+	bad_deps
+fi
+}
+
+###### Reset Some Variables If The Downloader Is Local
+
+local_reset ()
+{
+if [ "$location" = "local" ] ;
+then
+	xbmc_ip="127.0.0.1"
+	downloader=""
+	protocol=""
+	uri=""
 fi
 }
 
@@ -189,6 +229,7 @@ delete_junk ()
 {
 nodisp="0"
 clean="1"
+cd "$fpath" && rm -rf *.sfv
 for junk in $GARBAGE ;
 do
 	trash=$(cd "$fpath" ; ls *.$junk 2> /dev/null)
@@ -217,7 +258,7 @@ fi
 
 debug ()
 {
-echo ">> Debuging Info"
+echo ">> Debuging Data"
 if [ $detec = "1" ] ;
 then
 	echo -n "   "&& echo "Show Name & Season..............: $show_name_and_season"
@@ -232,7 +273,7 @@ then
 fi
 echo
 echo ">> SABnzbd Data"
-echo -n "   "&& echo "Post-Processing Result..........: `if [[ "$pproc" -eq "0" ]]; then echo "Passed" ; else echo "Failed" ; fi` [ $pproc ]"
+echo -n "   "&& echo "Post-Processing Result..........: `if [[ "$pproc" -eq "0" ]]; then echo "Passed" ; fi` [ $pproc ]"
 echo -n "   "&& echo "User Defined Category...........: $cat"
 echo -n "   "&& echo "Final Path of Job...............: $fpath"
 echo -n "   "&& echo "NZB File(s) Name................: $nzb"
@@ -336,6 +377,25 @@ then
 fi
 
 
+###### Silent: Change Scan Path(s) Based On Orientation Of SABnzbd Downloader
+
+if [ "$location" = "local" ] ;
+then
+	local_reset
+	tv_path=$tv_path_local
+	anime_path=$anime_path_local
+	archive_path=$archive_path_local
+	documentary_path=$documentary_path_local
+	movie_path=$movie_path_local
+else
+	tv_path=$tv_path_remote
+	anime_path=$anime_path_remote
+	archive_path=$archive_path_remote
+	documentary_path=$documentary_path_remote
+	movie_path=$movie_path_remote
+fi
+
+
 ###### Silent: Check Post-Processing Outcome From SAB; Exit If Return Is >1
 
 if [ "$pproc" -ge "1" ] ;
@@ -399,60 +459,70 @@ delete_junk
 
 ###### Conditional: Check If XBMC Is Active
 
-while true ;
-do
-	attempt=$(( attempt + 1 ))
-	if [ "$attempt" = "7" ] ;
-	then
-		echo "======================================="
-		echo ">> XBMC Has Not Responded to WOL Packets <<"
-		echo ">> Attempted To Wake XBMC [ 2 ] Times      <<"
-		echo ">> XBMC Has Failed to Wake                 <<"
-		echo "======================================="
-		echo
-		fail="1"
-		break
-	fi
-	xbmc_status=$(curl -v -H "Content-Type: application/json" -u $xbmc_user:$xbmc_pass -X POST -d '{"jsonrpc":"2.0","method":"JSONRPC.Ping","id":"1"}' http://$xbmc_ip:$xbmc_port/jsonrpc 2>/dev/null | cut -c 36- | sed -e 's/\":"/: /g' -e 's/["{}]//g')
-	if [ "$xbmc_status" != "pong" ] ;
-	then
-		echo ">> XBMC Is Inactive"
-		deps
-		echo -n "   "&& echo "Waking XBMC ------> [ MAC: $xbmc_mac ]"
-		wakeonlan $xbmc_mac > /dev/null 2>&1
-		echo -n "   "&& echo "Pausing $sleep_time seconds. "
-		sleep $sleep_time
-		echo -n "   "&& echo "Timer Completed."
-		echo -n "   "&& echo "Retrying XBMC..."
-		echo
-		attempt=$(( attempt + 2 ))
-		tried="1"
-		continue
-	else
-		break
-	fi
-done
-
-
-###### Display XBMC's State
-
-if [ "$xbmc_status" = "pong" ] ;
+if [ "$location" != "local" ] ;
 then
-	if [ "$tried" = "1" ] ;
+	while true ;
+	do
+		attempt=$(( attempt + 1 ))
+		if [ "$attempt" = "7" ] ;
+		then
+			echo "======================================="
+			echo ">> XBMC Has Not Responded to WOL Packets <<"
+			echo ">> Attempted To Wake XBMC [ 2 ] Times    <<"
+			echo ">> XBMC Has Failed to Wake               <<"
+			echo "======================================="
+			echo
+			fail="1"
+			break
+		fi
+		xbmc_status=$(curl -v -H "Content-Type: application/json" -u $xbmc_user:$xbmc_pass -X POST -d '{"jsonrpc":"2.0","method":"JSONRPC.Ping","id":"1"}' http://$xbmc_ip:$xbmc_port/jsonrpc 2>/dev/null | cut -c 36- | sed -e 's/\":"/: /g' -e 's/["{}]//g')
+		if [ "$xbmc_status" != "pong" ] ;
+		then
+			echo ">> XBMC Is Inactive"
+			deps
+			echo -n "   "&& echo "Waking XBMC ------> [ MAC: $xbmc_mac ]"
+			wakeonlan $xbmc_mac > /dev/null 2>&1
+			echo -n "   "&& echo "Pausing $sleep_time seconds. "
+			sleep $sleep_time
+			echo -n "   "&& echo "Timer Completed."
+			echo -n "   "&& echo "Retrying XBMC..."
+			echo
+			attempt=$(( attempt + 2 ))
+			tried="1"
+			continue
+		else
+			break
+		fi
+	done
+
+	###### Display XBMC's State
+	if [ "$xbmc_status" = "pong" ] ;
 	then
-		echo ">> XBMC Now Active"
-		echo -n "   "&& echo "Continuing"
-		fail="0"
-	else
-		echo ">> XBMC Is Active"
-		echo -n "   "&& echo "Continuing"
-		fail="0"
+		if [ "$tried" = "1" ] ;
+		then
+			echo ">> XBMC Now Active"
+			echo -n "   "&& echo "Downloader is [ $downloader ]"
+			echo -n "   "&& echo "Continuing"
+			fail="0"
+		else
+			echo ">> XBMC Is Active"
+			echo -n "   "&& echo "Downloader is [ $downloader ]"
+			echo -n "   "&& echo "Continuing"
+			fail="0"
+		fi
 	fi
+else
+	echo ">> XBMC Is Active"
+	echo -n "   "&& echo "Downloader is [ $xbmc_ip ]"
+	echo -n "   "&& echo "Continuing"
+	fail="0"
 fi
+
 
 ###### Conditional: Check Extraction Of Movie Year From $nzb (aka $2 from SABnzbd) (Previously Defined)
 
 lib_year_check
+
 
 ###### Conditional: Check Extraction Of TV Season From $nzb (aka $2 from SABnzbd) (Previously Defined)
 
@@ -472,19 +542,19 @@ then
 		echo
 		echo ">> Updating: - TV - Library"
 		echo " > Re/Register: Show [ $show_name ] with XBMC Library"
-		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
+		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol$uri$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		sleep 10
-		echo " > Register: Season [ $show_season ] Episode [ $show_episode ] with XBMC Library"
-		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name_and_season"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
+		echo " > Re/Register: Season [ $show_season ] Episode [ $show_episode ] with XBMC Library"
+		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol$uri$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name_and_season"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		echo
 	fi
 	debug
 	echo
 	echo ">> Commands Run"
 	echo " > Re/Register Show:"
-	echo "   curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name"'.g'""
-	echo " > Register Episode:"
-	echo "   curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name_and_season"'.g'""
+	echo "   curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol$uri$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name"'.g'""
+	echo " > Re/Register Season + Episode:"
+	echo "   curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol$uri$downloader/$tv_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$show_name_and_season"'.g'""
 	echo
 elif [ "$cat" = "$SAB_Uncategorized_TV" ] ;
 then
@@ -506,7 +576,7 @@ then
 		sleep 5
 		echo
 		echo ">> Updating: - Movies - Library"
-		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$movie_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
+		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol$uri$downloader/$movie_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		echo
 	fi
 	debug
@@ -516,7 +586,7 @@ then
 	echo
 	echo ">> Command Run"
 	echo " > Register Movie:"
-	echo "   curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$movie_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
+	echo "   curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol$uri$downloader/$movie_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
 	echo
 elif [ "$cat" = "$SAB_Documentaries" ] ;
 then
@@ -528,7 +598,7 @@ then
 		sleep 5
 		echo
 		echo ">> Updating: - Documentaries - Library"
-		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$documentary_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
+		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol$uri$downloader/$documentary_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		echo
 	fi
 	debug
@@ -538,7 +608,7 @@ then
 	echo
 	echo ">> Command Run"
 	echo " > Register Movie:"
-	echo "   curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$documentary_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
+	echo "   curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol$uri$downloader/$documentary_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
 	echo
 elif [ "$cat" = "$SAB_Archive" ] ;
 then
@@ -550,7 +620,7 @@ then
 		sleep 5
 		echo
 		echo ">> Updating: - Archive - Library"
-		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$archive_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
+		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol$uri$downloader/$archive_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		echo
 	fi
 	debug
@@ -560,7 +630,7 @@ then
 	echo
 	echo ">> Command Run"
 	echo " > Register Movie:"
-	echo "   curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$archive_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
+	echo "   curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol$uri$downloader/$archive_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
 	echo
 elif [ "$cat" = "$SAB_Anime" ] ;
 then
@@ -572,7 +642,7 @@ then
 		sleep 5
 		echo
 		echo ">> Updating - Anime - Library"
-		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$anime_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
+		echo "curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol$uri$downloader/$anime_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g' | sh 2>/dev/null | cut -c 30- | sed -e 's/\":"/: /g' -e 's/["{}]/   /g'
 		echo
 	fi
 	debug
@@ -582,7 +652,7 @@ then
 	echo
 	echo ">> Command Run"
 	echo " > Register Movie:"
-	echo "   curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol://$downloader/$anime_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
+	echo "   curl -s -H \"Content-Type: application/json\" -u $xbmc_user:$xbmc_pass -X POST -d '{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.Scan\", \"params\":{\"directory\":\"$protocol$uri$downloader/$anime_path/zzz/\"}, \"id\": \"scan\"}' http://$xbmc_ip:$xbmc_port/jsonrpc" | sed 's.zzz.'"$movie_name_and_year"'.g'""
 	echo
 fi
 
@@ -594,8 +664,8 @@ if [ "$fail" = "0" ] ;
 then
 	if [ "$uncat" = "1" ] ;
 	then
-	## Success, We're Done, But Library Not Updated
 		success_no_change
+		## Success, We're Done, But Library Not Updated
 	fi
 	success
 	## Success, We're Done
