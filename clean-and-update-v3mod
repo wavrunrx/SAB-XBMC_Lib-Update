@@ -16,7 +16,11 @@
 
 ###### Compatibility: XBMC & OpenELEC Frodo
 
-###### Change The Following Variables:
+#############################################
+######
+###### ATTENTION: BEGIN USER DEFINEABLE VARIABLES
+######
+#############################################
 
 ## Note 1: ENABLE the option "Process only verified jobs" in SABnzbd, under: Config --> Switches --> Post processing
 ## Note 2: ENABLE the XBMC web server
@@ -36,19 +40,19 @@ protocol="nfs"
 uri="://"
 
 ## Is the SABnzbd downloader on a LOCAL or REMOTE machine ?
-location="remote"
+location="local"
 
 ## LOCAL Downloader scan paths (set this for a LOCAL SABnzbd downloader)
-tv_path_local="var/media/<device-id>/_TV"
+tv_path_local="media/2a7ab150-23e9-44f2-a50c-4362640631b3/Video_Library/_TV"
 ### uncat_tv_path= DO-NOT-SET
 ### For uncategorized tv, we have no path to define, since we dont scan it to the xbmc library.
 ### we only send a visual notification to XBMC when SAB finishes an uncategorized tv download.
 ### examples include: out of season episodes; single episode specials, newscast documentaries, etc.
 ### these types of video are problematic when matching metadata with thetvdb, and are best left unidentified.
-anime_path_local="var/media/<device-id>/_Anime"
-archive_path_local="var/media/<device-id>/_To-Archive"
-documentary_path_local="var/media/<device-id>/_Documentaries"
-movie_path_local="var/media/<device-id>/_Movies"
+anime_path_local="media/2a7ab150-23e9-44f2-a50c-4362640631b3/Video_Library/_Anime"
+archive_path_local="media/2a7ab150-23e9-44f2-a50c-4362640631b3/Video_Library/_To-Archive"
+documentary_path_local="media/2a7ab150-23e9-44f2-a50c-4362640631b3/Video_Library/_Documentaries"
+movie_path_local="media/2a7ab150-23e9-44f2-a50c-4362640631b3/Video_Library/_Movies"
 
 ## REMOTE Downloader scan paths (set this for a REMOTE SABnzbd downloader)
 tv_path_remote="export/_TV"
@@ -72,9 +76,9 @@ SAB_Documentaries="documentaries"
 SAB_Movies="movies"
 
 ## Set files to REMOVE after SABnzbd processing
-TV_GARBAGE="nfo srt sfv srr url txt md5 diz jpg bmp png sub idx srt nzb"
-UNCATTV_GARBAGE="nfo srt sfv srr url txt md5 diz jpg bmp png sub idx srt nzb"
-MOVIE_GARBAGE="sfv srr url txt md5 diz jpg bmp png nzb"
+TV_GARBAGE="nfo srt sfv srr url txt md5 diz jpg bmp png sub idx srt nzb srs"
+UNCATTV_GARBAGE="nfo srt sfv srr url txt md5 diz jpg bmp png sub idx srt nzb srs"
+MOVIE_GARBAGE="sfv srr url txt md5 diz jpg bmp png nzb srs"
 
 ## Time normally required for your XBMC machine to boot into a useable interface (60 seconds is usually more then enough here)
 sleep_time="60"
@@ -96,14 +100,19 @@ grp=$6
 fail="0"
 attempt="0"
 
-show_name_and_season=$(echo "$fpath/" | awk -F/ '{print $(NF-2)"/"$(NF-1)}' | sed "s/\b\(.\)/\u\1/g" | sed 's/\/S/\/s/g')
-show_name=$(echo `echo "$fpath/" | awk -F/ '{print $(NF-2)"/"$(NF-1)}'` | sed -e 's/\/.*//' | sed -e "s/\b\(.\)/\u\1/g")
-show_season=$(echo "$fpath/" | awk -F/ '{print $(NF-1)}' | sed 's/s//')
-show_episode=$(echo "$nzb/" | grep -o [S,s,Season,season]*[[:digit:]][[:digit:]][E,e,X,x,Episode,episode][[:digit:]][[:digit:]] | cut -c 4- | tr '[:upper:]' '[:lower:]' | sed 's/e//')
+#show_name_and_season=$(echo "$fpath/" | awk -F/ '{print $(NF-2)"/"$(NF-1)}' | sed "s/\b\(.\)/\u\1/g" | sed 's/\/S/\/s/g')
+show_name_and_season=$(echo "$fpath" | awk -F/ '{print $(NF-1)"/"$(NF-0)}' | sed "s/\b\(.\)/\1/g" | sed 's/\/S/\/s/g')
+#show_name=$(echo `echo "$fpath/" | awk -F/ '{print $(NF-2)"/"$(NF-1)}'` | sed -e 's/\/.*//' | sed -e "s/\b\(.\)/\u\1/g")
+show_name=$(echo "$fpath" | awk -F/ '{print $(NF-1)"/"$(NF-0)}' | sed -e 's/\/.*//' | sed -e "s/\b\(.\)/\1/g")
+#show_season=$(echo "$fpath" | awk -F/ '{print $(NF-1)}' | sed 's/s//')
+show_season=$(echo "$fpath" | awk -F/ '{print $(NF-0)}' | sed 's/s//')
+show_episode=$(echo "$nzb" | grep -o [S,s,Season,season]*[[:digit:]][[:digit:]][E,e,X,x,Episode,episode][[:digit:]][[:digit:]] | cut -c 4- | tr '[:upper:]' '[:lower:]' | sed 's/e//')
 
-movie_name_and_year=$(echo "$fpath/" | awk -F/ '{print $(NF-1)}' | sed -e "s/\b\(.\)/\u\1/g")
-movie_name=$(echo "$fpath/" | awk -F/ '{print $(NF-1)}' | sed -e 's/([^()]*)//g' | sed -e "s/\b\(.\)/\u\1/g")
-movie_year=$(echo "$fpath/" | awk '{print $NF}' | tr -d "/" | tr -d '()' )
+#movie_name_and_year=$(echo "$fpath" | awk -F/ '{print $(NF-1)}' | sed -e "s/\b\(.\)/\u\1/g")
+movie_name_and_year=$(echo "$fpath" | awk -F/ '{print $(NF-0)}' | sed "s/\b\(.\)/\1/g")
+#movie_name=$(echo "$fpath" | awk -F/ '{print $(NF-1)}' | sed -e 's/([^()]*)//g' | sed -e "s/\b\(.\)/\u\1/g")
+movie_name=$(echo "$fpath" | awk -F/ '{print $(NF-0)}' | sed -e 's/([^()]*)//g' | sed "s/\b\(.\)/\1/g")
+movie_year=$(echo "$fpath" | awk '{print $NF}' | tr -d "/" | tr -d '()' )
 
 
 success ()
@@ -183,6 +192,17 @@ bad_deps ()
 	exit 1
 }
 
+not_video ()
+{
+	echo ">> Time Failed"
+	echo -n "   "&& echo "`date +"%A %b %e, %Y"`"
+	echo -n "   "&& echo "`date +"%r"`"
+	echo
+	echo "Success: Library Not Updated."
+	echo "Success: Download Completed."
+	exit 1
+}
+
 
 ###### Check Dependencies Required For This Script To Run Properly
 
@@ -236,7 +256,7 @@ do
 	if [ ! -z $trash ] ;
 	then
 		nodisp=$(( nodisp + 1 ))
-		if [[ "$nodisp" < "2" ]] ;
+		if [[ "$nodisp" -le "1" ]] ;
 		then
 			echo ">> Junk Files Found"
 		fi
@@ -248,6 +268,7 @@ done
 echo
 if [ "$clean" != "0" ] ;
 then
+	echo
 	echo ">> No Junk Files Found"
 	echo -n "   "&& echo "Nothing Deleted"
 	echo
@@ -267,7 +288,7 @@ then
 	echo -n "   "&& echo "Show Episode....................: $show_episode"
 elif [ "$detec" = "0" ] ;
 then
-	echo -n "   "&& echo "Movie Name & Year...............: $movie_name_and_year"
+	echo -n "   "&& echo "Movie Name / Year...............: $movie_name_and_year"
 	echo -n "   "&& echo "Movie Name......................: $movie_name"
 	echo -n "   "&& echo "Movie Year......................: $movie_year"
 fi
@@ -282,7 +303,7 @@ echo -n "   "&& echo "Usenet Group....................: $grp"
 }
 
 
-## if $movie_year, isnt properly extracted, most likley $movie_name isnt either (probabally due to an improper $cjob name)
+## if $movie_year, isnt properly extracted, most likley $movie_name wasnt either (probabally due to an improper $cjob ($3 aka Clean job Name))
 ## were going to halt further processing as we dont want to update XBMC's movie library with a useless scene name
 
 lib_year_check ()
@@ -298,7 +319,7 @@ fi
 }
 
 
-## $show_season, isnt properly extracted, most likley $show_episode isnt either (probabally due to an improper $cjob name)
+## $show_season, isnt properly extracted, most likley $show_episode wasnt either (probabally due to an improper $cjob ($3 aka Clean job Name))
 ## were going to halt further processing as we dont want to update XBMC's movie library with a useless scene name
 
 lib_season_check ()
@@ -350,12 +371,25 @@ fi
 #############################################
 
 
+###### Do Nothing If Not Video Content
+
+#if [[ "$cat" != "$SAB_Movies" || "$cat" != "$SAB_Anime" || "$cat" != "$SAB_Documentaries" || "$cat" != "$SAB_Archive" || "$cat" != "$SAB_TV" || "$cat" != "$SAB_Uncategorized_TV" ]] ;
+#then
+#	echo
+#	echo "Non-Video Content Detected"
+#	echo "Script Exiting"
+#	echo
+#	not_video
+#fi
+#
+
+
 ###### Set A Video Category & Define The Junk File 'Set' To Be Used
 
 if [ "$cat" = "$SAB_TV" ] ;
 then
 	echo
-	echo ">> [ TV ] Detected"
+	echo ">> Detected: [ TV ]"
 	echo
 	GARBAGE=$TV_GARBAGE
 	detec="1"
@@ -363,14 +397,14 @@ fi
 if [ "$cat" = "$SAB_Uncategorized_TV" ] ;
 then
 	echo
-	echo ">> [ Uncategorized TV ] Detected"
+	echo ">> Detected: [ Uncategorized TV ]"
 	echo
 	GARBAGE=$UNCATTV_GARBAGE
 fi
 if [[ "$cat" = "$SAB_Movies" || "$cat" = "$SAB_Anime" || "$cat" = "$SAB_Documentaries" || "$cat" = "$SAB_Archive" ]] ;
 then
 	echo
-	echo ">> [ Movie ] Detected"
+	echo ">> Detected: [ Movie ]"
 	echo
 	GARBAGE=$MOVIE_GARBAGE
 	detec="0"
@@ -501,19 +535,19 @@ then
 		if [ "$tried" = "1" ] ;
 		then
 			echo ">> XBMC Now Active"
-			echo -n "   "&& echo "Downloader is [ $downloader ]"
+			echo -n "   "&& echo "Downloader is - $downloader -"
 			echo -n "   "&& echo "Continuing"
 			fail="0"
 		else
 			echo ">> XBMC Is Active"
-			echo -n "   "&& echo "Downloader is [ $downloader ]"
+			echo -n "   "&& echo "Downloader is - $downloader -"
 			echo -n "   "&& echo "Continuing"
 			fail="0"
 		fi
 	fi
 else
 	echo ">> XBMC Is Active"
-	echo -n "   "&& echo "Downloader is [ $xbmc_ip ]"
+	echo -n "   "&& echo "Downloader is - $xbmc_ip -"
 	echo -n "   "&& echo "Continuing"
 	fail="0"
 fi
