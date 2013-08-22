@@ -76,9 +76,9 @@ SAB_Documentaries="documentaries"
 SAB_Movies="movies"
 
 ## Set files to REMOVE after SABnzbd processing
-TV_GARBAGE="nfo srt sfv srr url txt md5 diz jpg bmp png sub idx srt nzb srs"
-UNCATTV_GARBAGE="nfo srt sfv srr url txt md5 diz jpg bmp png sub idx srt nzb srs"
-MOVIE_GARBAGE="sfv srr url txt md5 diz jpg bmp png nzb srs"
+TV_GARBAGE="nfo srt srr txt md5 diz jpg bmp png sub idx srt nzb srs sfv url"
+UNCATTV_GARBAGE="nfo srt srr txt md5 diz jpg bmp png sub idx srt nzb srs sfv url"
+MOVIE_GARBAGE="srr txt md5 diz jpg bmp png nzb srs sfv url"
 
 ## Time normally required for your XBMC machine to boot into a useable interface (60 seconds is usually more then enough here)
 sleep_time="60"
@@ -100,17 +100,12 @@ grp=$6
 fail="0"
 attempt="0"
 
-#show_name_and_season=$(echo "$fpath/" | awk -F/ '{print $(NF-2)"/"$(NF-1)}' | sed "s/\b\(.\)/\u\1/g" | sed 's/\/S/\/s/g')
 show_name_and_season=$(echo "$fpath" | awk -F/ '{print $(NF-1)"/"$(NF-0)}' | sed "s/\b\(.\)/\1/g" | sed 's/\/S/\/s/g')
-#show_name=$(echo `echo "$fpath/" | awk -F/ '{print $(NF-2)"/"$(NF-1)}'` | sed -e 's/\/.*//' | sed -e "s/\b\(.\)/\u\1/g")
 show_name=$(echo "$fpath" | awk -F/ '{print $(NF-1)"/"$(NF-0)}' | sed -e 's/\/.*//' | sed -e "s/\b\(.\)/\1/g")
-#show_season=$(echo "$fpath" | awk -F/ '{print $(NF-1)}' | sed 's/s//')
 show_season=$(echo "$fpath" | awk -F/ '{print $(NF-0)}' | sed 's/s//')
 show_episode=$(echo "$nzb" | grep -o [S,s,Season,season]*[[:digit:]][[:digit:]][E,e,X,x,Episode,episode][[:digit:]][[:digit:]] | cut -c 4- | tr '[:upper:]' '[:lower:]' | sed 's/e//')
 
-#movie_name_and_year=$(echo "$fpath" | awk -F/ '{print $(NF-1)}' | sed -e "s/\b\(.\)/\u\1/g")
 movie_name_and_year=$(echo "$fpath" | awk -F/ '{print $(NF-0)}' | sed "s/\b\(.\)/\1/g")
-#movie_name=$(echo "$fpath" | awk -F/ '{print $(NF-1)}' | sed -e 's/([^()]*)//g' | sed -e "s/\b\(.\)/\u\1/g")
 movie_name=$(echo "$fpath" | awk -F/ '{print $(NF-0)}' | sed -e 's/([^()]*)//g' | sed "s/\b\(.\)/\1/g")
 movie_year=$(echo "$fpath" | awk '{print $NF}' | tr -d "/" | tr -d '()' )
 
@@ -249,29 +244,44 @@ delete_junk ()
 {
 nodisp="0"
 clean="1"
-cd "$fpath" && rm -rf *.sfv
+#for junk in $GARBAGE ;
+#do
+#	trash=$(cd "$fpath" ; ls *.$junk 2> /dev/null)
+#	if [ ! -z $trash ] ;
+#	then
+#		nodisp=$(( nodisp + 1 ))
+#		if [[ "$nodisp" -le "1" ]] ;
+#		then
+#			echo ">> Junk Files Found"
+#		fi
+#		find "$fpath" -name *.$junk -type f -exec rm -f {} \;
+#		echo -n "   "&& echo ".$junk Deleted -----> [ $trash ]"
+#		clean="0"
+#	fi
+#done
 for junk in $GARBAGE ;
 do
 	trash=$(cd "$fpath" ; ls *.$junk 2> /dev/null)
-	if [ ! -z $trash ] ;
+	if [ ! -z '$trash' ] ;
 	then
-		nodisp=$(( nodisp + 1 ))
+		nodisp=$(( $nodisp + 1 ))
 		if [[ "$nodisp" -le "1" ]] ;
 		then
 			echo ">> Junk Files Found"
 		fi
-		find "$fpath" -name *.$junk -type f -exec rm -f {} \;
-		echo -n "   "&& echo ".$junk Deleted -----> [ $trash ]"
+		find "$fpath" -name \*.$junk -type f -exec rm -f {} \;
+		if [ ! -z "$trash" ] ;
+		then
+			echo "   .$junk Deleted ----->" [ $trash ]
+		fi
 		clean="0"
 	fi
 done
-echo
+
 if [ "$clean" != "0" ] ;
 then
-	echo
 	echo ">> No Junk Files Found"
 	echo -n "   "&& echo "Nothing Deleted"
-	echo
 fi
 }
 
@@ -359,9 +369,13 @@ folder_contents ()
 if [ "$cat" =  "$SAB_Movies" ] ;
 then
 	sleep 5
-	echo ">> Contents Of Folder For: [ $movie_name]"
+	echo ">> Contents Of Folder:"
 	test ! -f "$fpath"/*.nfo && echo " > No NFO Found !" && echo "   --------------"
-	echo -n "   "&& echo "`ls "$fpath"* | awk -F"/" '{ print $NF }'`"
+	indv=$(ls -l "$fpath"* | awk '{print($(NF))}' | sed 1d)
+	for i in $indv ;
+	do
+		echo "   $i"
+	done
 fi
 }
 
@@ -369,19 +383,6 @@ fi
 #############################################
 ###### BEGIN
 #############################################
-
-
-###### Do Nothing If Not Video Content
-
-#if [[ "$cat" != "$SAB_Movies" || "$cat" != "$SAB_Anime" || "$cat" != "$SAB_Documentaries" || "$cat" != "$SAB_Archive" || "$cat" != "$SAB_TV" || "$cat" != "$SAB_Uncategorized_TV" ]] ;
-#then
-#	echo
-#	echo "Non-Video Content Detected"
-#	echo "Script Exiting"
-#	echo
-#	not_video
-#fi
-#
 
 
 ###### Set A Video Category & Define The Junk File 'Set' To Be Used
@@ -512,6 +513,7 @@ then
 		xbmc_status=$(curl -v -H "Content-Type: application/json" -u $xbmc_user:$xbmc_pass -X POST -d '{"jsonrpc":"2.0","method":"JSONRPC.Ping","id":"1"}' http://$xbmc_ip:$xbmc_port/jsonrpc 2>/dev/null | cut -c 36- | sed -e 's/\":"/: /g' -e 's/["{}]//g')
 		if [ "$xbmc_status" != "pong" ] ;
 		then
+			echo
 			echo ">> XBMC Is Inactive"
 			deps
 			echo -n "   "&& echo "Waking XBMC ------> [ MAC: $xbmc_mac ]"
@@ -534,11 +536,13 @@ then
 	then
 		if [ "$tried" = "1" ] ;
 		then
+			echo
 			echo ">> XBMC Now Active"
 			echo -n "   "&& echo "Downloader is - $downloader -"
 			echo -n "   "&& echo "Continuing"
 			fail="0"
 		else
+			echo
 			echo ">> XBMC Is Active"
 			echo -n "   "&& echo "Downloader is - $downloader -"
 			echo -n "   "&& echo "Continuing"
@@ -546,6 +550,7 @@ then
 		fi
 	fi
 else
+	echo
 	echo ">> XBMC Is Active"
 	echo -n "   "&& echo "Downloader is - $xbmc_ip -"
 	echo -n "   "&& echo "Continuing"
