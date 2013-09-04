@@ -43,16 +43,16 @@ uri="://"
 location="local"
 
 ## LOCAL Downloader scan paths (set this for a LOCAL SABnzbd downloader)
-tv_path_local="media/2a7ab150-23e9-44f2-a50c-4362640631b3/Video_Library/_TV"
+tv_path_local="media/sdb1-ata-WDC_WD2002FAEX-0/Video_Library/_TV"
 ### uncat_tv_path= DO-NOT-SET
 ### For uncategorized tv, we have no path to define, since we dont scan it to the xbmc library.
 ### we only send a visual notification to XBMC when SAB finishes an uncategorized tv download.
 ### examples include: out of season episodes; single episode specials, newscast documentaries, etc.
 ### these types of video are problematic when matching metadata with thetvdb, and are best left unidentified.
-anime_path_local="media/2a7ab150-23e9-44f2-a50c-4362640631b3/Video_Library/_Anime"
-archive_path_local="media/2a7ab150-23e9-44f2-a50c-4362640631b3/Video_Library/_To-Archive"
-documentary_path_local="media/2a7ab150-23e9-44f2-a50c-4362640631b3/Video_Library/_Documentaries"
-movie_path_local="media/2a7ab150-23e9-44f2-a50c-4362640631b3/Video_Library/_Movies"
+anime_path_local="media/sdb1-ata-WDC_WD2002FAEX-0/Video_Library/_Anime"
+archive_path_local="media/sdb1-ata-WDC_WD2002FAEX-0/_To-Archive"
+documentary_path_local="media/sdb1-ata-WDC_WD2002FAEX-0/Video_Library/_Documentaries"
+movie_path_local="media/sdb1-ata-WDC_WD2002FAEX-0/Video_Library/_Movies"
 
 ## REMOTE Downloader scan paths (set this for a REMOTE SABnzbd downloader)
 tv_path_remote="export/_TV"
@@ -76,17 +76,17 @@ SAB_Documentaries="documentaries"
 SAB_Movies="movies"
 
 ## Set files to REMOVE after SABnzbd processing
-TV_GARBAGE="nfo srt srr txt md5 diz jpg bmp png sub idx srt nzb srs sfv url"
-UNCATTV_GARBAGE="nfo srt srr txt md5 diz jpg bmp png sub idx srt nzb srs sfv url"
-MOVIE_GARBAGE="srr txt md5 diz jpg bmp png nzb srs sfv url"
+TV_GARBAGE="nfo srt srr txt md5 diz jpg bmp png sub idx srt nzb srs sfv url TXT NFO"
+UNCATTV_GARBAGE="nfo srt srr txt md5 diz jpg bmp png sub idx srt nzb srs sfv url TXT NFO"
+MOVIE_GARBAGE="srr txt md5 diz jpg bmp png nzb srs sfv url TXT NFO"
 
-## Time normally required for your XBMC machine to boot into a useable interface (60 seconds is usually more then enough here)
+## Time normally required (in seconds) for your XBMC machine to boot into a usable state from poweroff (60 seconds is usually more then enough here)
 sleep_time="60"
 
 
 #############################################
 ######
-###### ATTENTION: DO NOT EDIT PAST THIS POINT
+###### DO NOT EDIT PAST THIS POINT
 ######
 #############################################
 
@@ -113,7 +113,7 @@ movie_year=$(echo "$fpath" | awk '{print $NF}' | tr -d "/" | tr -d '()' )
 success ()
 {
 	echo ">> Time Completed"
-	echo -n "   "&& echo "`date +"%A %b %e, %Y"`"
+	echo -n "   "&& echo "`date +"%A %b%e, %Y"`"
 	echo -n "   "&& echo "`date +"%r"`"
 	echo
 	echo "Success: No Errors Detected"
@@ -124,7 +124,7 @@ success ()
 success_no_change ()
 {
 	echo ">> Time Completed"
-	echo -n "   "&& echo "`date +"%A %b %e, %Y"`"
+	echo -n "   "&& echo "`date +"%A %b%e, %Y"`"
 	echo -n "   "&& echo "`date +"%r"`"
 	echo
 	echo "Success: Library Not Updated."
@@ -135,7 +135,7 @@ success_no_change ()
 wake_failure ()
 {
 	echo ">> Time Failed"
-	echo -n "   "&& echo "`date +"%A %b %e, %Y"`"
+	echo -n "   "&& echo "`date +"%A %b%e, %Y"`"
 	echo -n "   "&& echo "`date +"%r"`"
 	echo
 	echo "Failed: Library Not Updated."
@@ -146,7 +146,7 @@ wake_failure ()
 processing_failed ()
 {
 	echo ">> Time Failed"
-	echo -n "   "&& echo "`date +"%A %b %e, %Y"`"
+	echo -n "   "&& echo "`date +"%A %b%e, %Y"`"
 	echo -n "   "&& echo "`date +"%r"`"
 	echo
 	echo "Failed: Library Not Updated."
@@ -157,7 +157,7 @@ processing_failed ()
 name_failed ()
 {
 	echo ">> Time Failed"
-	echo -n "   "&& echo "`date +"%A %b %e, %Y"`"
+	echo -n "   "&& echo "`date +"%A %b%e, %Y"`"
 	echo -n "   "&& echo "`date +"%r"`"
 	echo
 	echo "Failed: Library Not Updated."
@@ -168,7 +168,7 @@ name_failed ()
 year_failed ()
 {
 	echo ">> Time Failed"
-	echo -n "   "&& echo "`date +"%A %b %e, %Y"`"
+	echo -n "   "&& echo "`date +"%A %b%e, %Y"`"
 	echo -n "   "&& echo "`date +"%r"`"
 	echo
 	echo "Failed: Library Not Updated."
@@ -179,7 +179,7 @@ year_failed ()
 bad_deps ()
 {
 	echo ">> Time Failed"
-	echo -n "   "&& echo "`date +"%A %b %e, %Y"`"
+	echo -n "   "&& echo "`date +"%A %b%e, %Y"`"
 	echo -n "   "&& echo "`date +"%r"`"
 	echo
 	echo "Failed: Library Not Updated."
@@ -189,8 +189,8 @@ bad_deps ()
 
 not_video ()
 {
-	echo ">> Time Failed"
-	echo -n "   "&& echo "`date +"%A %b %e, %Y"`"
+	echo ">> Time Completed"
+	echo -n "   "&& echo "`date +"%A %b%e, %Y"`"
 	echo -n "   "&& echo "`date +"%r"`"
 	echo
 	echo "Success: Library Not Updated."
@@ -244,24 +244,10 @@ delete_junk ()
 {
 nodisp="0"
 clean="1"
-#for junk in $GARBAGE ;
-#do
-#	trash=$(cd "$fpath" ; ls *.$junk 2> /dev/null)
-#	if [ ! -z $trash ] ;
-#	then
-#		nodisp=$(( nodisp + 1 ))
-#		if [[ "$nodisp" -le "1" ]] ;
-#		then
-#			echo ">> Junk Files Found"
-#		fi
-#		find "$fpath" -name *.$junk -type f -exec rm -f {} \;
-#		echo -n "   "&& echo ".$junk Deleted -----> [ $trash ]"
-#		clean="0"
-#	fi
-#done
 for junk in $GARBAGE ;
 do
 	trash=$(cd "$fpath" ; ls *.$junk 2> /dev/null)
+	trash2=$(echo $trash | tr "\n" "," | sed 's/,$/ /' | tr " " "\n" | sed 's/,/, /g')
 	if [ ! -z '$trash' ] ;
 	then
 		nodisp=$(( $nodisp + 1 ))
@@ -272,7 +258,7 @@ do
 		find "$fpath" -name \*.$junk -type f -exec rm -f {} \;
 		if [ ! -z "$trash" ] ;
 		then
-			echo "   .$junk Deleted ----->" [ $trash ]
+		echo "   .$junk Deleted ----->" [ $trash2 ]
 		fi
 		clean="0"
 	fi
@@ -281,7 +267,7 @@ done
 if [ "$clean" != "0" ] ;
 then
 	echo ">> No Junk Files Found"
-	echo -n "   "&& echo "Nothing Deleted"
+	echo "   Nothing Deleted"
 fi
 }
 
@@ -290,13 +276,13 @@ fi
 debug ()
 {
 echo ">> Debuging Data"
-if [ $detec = "1" ] ;
+if [ "$detec" = "1" ] ;
 then
 	echo -n "   "&& echo "Show Name & Season..............: $show_name_and_season"
 	echo -n "   "&& echo "Show Name.......................: $show_name"
 	echo -n "   "&& echo "Show Season.....................: $show_season"
 	echo -n "   "&& echo "Show Episode....................: $show_episode"
-elif [ "$detec" = "0" ] ;
+elif [ "$detec" -eq "0" ] ;
 then
 	echo -n "   "&& echo "Movie Name / Year...............: $movie_name_and_year"
 	echo -n "   "&& echo "Movie Name......................: $movie_name"
@@ -323,6 +309,7 @@ then
 	if [ "$movie_year" ! -eq "$movie_year" 2> /dev/null ];
 	then
 		delete_junk
+		echo
 		year_failed
 	fi
 fi
@@ -339,6 +326,7 @@ then
 	if [ "$show_season" ! -eq "$show_season" 2> /dev/null ];
 	then
 		delete_junk
+		echo
 		name_failed
 	fi
 fi
@@ -385,7 +373,7 @@ fi
 #############################################
 
 
-###### Set A Video Category & Define The Junk File 'Set' To Be Used
+###### Set A Video Category & Define The Junk File 'Set' To Be Used; Also Detect Non-Video Categories
 
 if [ "$cat" = "$SAB_TV" ] ;
 then
@@ -410,6 +398,13 @@ then
 	GARBAGE=$MOVIE_GARBAGE
 	detec="0"
 fi
+#if [[ "$cat" -ne "$SAB_TV" || "$SAB_Uncategorized_TV" || "$SAB_Movies" || "$SAB_Anime" || "$SAB_Documentaries" || "$SAB_Archive" ]] ;
+#then
+#	echo
+#	echo ">> Detected: [ Non-Video Content ]"
+#	echo
+#	detec="2"
+#fi
 
 
 ###### Silent: Change Scan Path(s) Based On Orientation Of SABnzbd Downloader
@@ -435,7 +430,6 @@ fi
 
 if [ "$pproc" -ge "1" ] ;
 then
-	echo
 	echo "Error: SABnzbd Post-Processing Failed !"
 	echo
 	processing_failed
@@ -459,6 +453,7 @@ then
 		echo "Further Processing Halted"
 		echo
 		delete_junk
+		echo
 		name_failed
 		echo
 		## Failure, We're Exiting
@@ -480,10 +475,19 @@ then
 		echo "Further Processing Halted"
 		echo
 		delete_junk
+		echo
 		year_failed
 		echo
 		## Failure, We're Exiting
 	fi
+fi
+
+
+###### Stop For Non Video Content
+
+if [ "$detec" = "2" ] ;
+then
+	not_video
 fi
 
 
